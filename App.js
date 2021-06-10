@@ -1,41 +1,19 @@
-import { StatusBar } from "expo-status-bar";
+import "react-native-gesture-handler";
 import React from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigation } from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
+import NewAlarm from "./src/NewAlarm";
+import Home from "./src/Home";
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>CRYPTO ALARM</Text>
-      <View style={styles.buttonContainer}>
-        <Button color="#41444b" title="NEW ALARM" />
-        <Button color="#41444b" style={styles.button} title="EXISTING ALARM" />
-      </View>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="NewAlarm" component={NewAlarm} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#52575d",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  title: {
-    backgroundColor: "#fff",
-    color: "#41444b",
-    fontSize: 50,
-    marginVertical: 150,
-  },
-  buttonContainer: {
-    height: 100,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-});
