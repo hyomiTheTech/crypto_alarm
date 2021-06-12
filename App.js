@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import NewAlarm from "./src/NewAlarm";
 import Home from "./src/Home";
+import ExistingAlarm from "./src/ExistingAlarm";
 
 const Stack = createStackNavigator();
 
@@ -13,6 +14,7 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="NewAlarm" component={NewAlarm} />
+        <Stack.Screen name="ExistingAlarm" component={ExistingAlarm} />
       </Stack.Navigator>
     </NavigationContainer>
   );

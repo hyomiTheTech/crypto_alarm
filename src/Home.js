@@ -12,7 +12,12 @@ const Home = ({ navigation }) => {
           title="NEW ALARM"
           onPress={() => navigation.navigate("NewAlarm")}
         />
-        <Button color="#41444b" style={styles.button} title="EXISTING ALARM" />
+        <Button
+          color="#41444b"
+          style={styles.button}
+          title="EXISTING ALARM"
+          onPress={() => navigation.navigate("ExistingAlarm")}
+        />
       </View>
       <StatusBar style="auto" />
     </View>
