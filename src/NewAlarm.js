@@ -21,6 +21,12 @@ const NewAlarm = () => {
         placeholder={{ label: "More Than", value: "More Than" }}
       />
       Price
+      Alarm Sound
+      <RNPickerSelect
+        onValueChange={(value) => console.log(value)}
+        items={[{ label: "Bitconnect", value: "Bitconnect" }, {label:"Elon Musk", value: "Elon Musk"}]}
+        placeholder={{ label: "Standard", value: "Standard" }}
+      />
     </View>
   );
 };
