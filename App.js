@@ -2,9 +2,9 @@ import "react-native-gesture-handler";
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import NewAlarm from "./src/NewAlarm";
-import Home from "./src/Home";
-import ExistingAlarm from "./src/ExistingAlarm";
+import NewAlarm from "./component/NewAlarm";
+import Home from "./component/Home";
+import ExistingAlarm from "./component/ExistingAlarm";
 
 const Stack = createStackNavigator();
 

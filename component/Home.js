@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   title: {
     backgroundColor: "#fff",
     color: "#41444b",
-    fontSize: 50,
+    fontSize: 40,
     marginVertical: 150,
   },
   buttonContainer: {
