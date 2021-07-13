@@ -24,17 +24,6 @@ const NewAlarm = () => {
     }
   };
 
-  const getData = async () => {
-    try {
-      const value = await AsyncStorage.getItem("@1");
-      if (value !== null) {
-        console.log(value);
-      }
-    } catch (e) {
-      // error reading value
-    }
-  };
-
   return (
     <View>
       <View style={styles.selectSection}>
@@ -81,14 +70,6 @@ const NewAlarm = () => {
           title="Save"
           onPress={() => {
             console.log(coinPair, moreThan, price, alarmSound), storeData();
-          }}
-        />
-
-        <Button
-          color="#41444b"
-          title="check"
-          onPress={() => {
-            getData();
           }}
         />
       </View>
