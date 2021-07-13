@@ -1,13 +1,26 @@
-import React, { useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Button, StyleSheet, Text, View, TextInput } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NewAlarm = () => {
   const [coinPair, setCoinPair] = useState("");
   const [moreThan, setMoreThan] = useState(null);
-  const [price, setPrice] = useState(100);
+  const [currentPrice, setCurrentPrice] = useState(null)
+  const [price, setPrice] = useState(null);
   const [alarmSound, setAlarmSound] = useState(null);
+  const [alarmIndex, setAlarmIndex] = useState(1)
+
+  useEffect(() => {
+
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd').then(response => response.json())
+    .then(data => setCurrentPrice(data.bitcoin.usd))
+
+    const interval = setInterval(() => {
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd').then(response => response.json())
+    .then(data => {setCurrentPrice(data.bitcoin.usd); })}, 10000)
+    return () => clearInterval(interval);
+  },[])
 
   const storeData = async () => {
     try {
@@ -18,14 +31,19 @@ const NewAlarm = () => {
         alarmSound: alarmSound,
       };
       const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem("@1", jsonValue);
+      await AsyncStorage.setItem(`@${alarmIndex}`, jsonValue);
     } catch (e) {
       error(e);
     }
   };
 
+  const increaseAlarmIndex = () => {
+    setAlarmIndex(prev => prev + 1)
+  }
+
   return (
     <View>
+      <View>{currentPrice && <Text>Current Price: ${currentPrice}</Text>}</View>
       <View style={styles.selectSection}>
         <Text>Coin Pair</Text>
         <RNPickerSelect
@@ -51,6 +69,7 @@ const NewAlarm = () => {
       </View>
       <View style={styles.selectSection}>
         <Text>Price</Text>
+        <TextInput onChangeText={setPrice} style={styles.priceInput} placeholder={"Price"}/>
       </View>
       <View style={styles.selectSection}>
         <Text>Alarm Sound</Text>
@@ -69,7 +88,7 @@ const NewAlarm = () => {
           color="#41444b"
           title="Save"
           onPress={() => {
-            console.log(coinPair, moreThan, price, alarmSound), storeData();
+            storeData(); increaseAlarmIndex();
           }}
         />
       </View>
@@ -83,6 +102,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  priceInput: {
+    backgroundColor: "white",
+    height: 25,
+    margin: 6,
+    borderWidth: 1,
+  }
 });
 
 export default NewAlarm;

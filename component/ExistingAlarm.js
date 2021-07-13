@@ -3,27 +3,27 @@ import { Button, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ExistingAlarm = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const jsonValue = await AsyncStorage.getItem("@1");
-        jsonValue != null ? JSON.parse(jsonValue) : null;
-        console.log(jsonValue);
-        setData(jsonValue);
+        let jsonValue = await AsyncStorage.getItem("@1");
+        let parsedValue = JSON.parse(jsonValue)
+        console.log(parsedValue);
+        setData(parsedValue);
       } catch (e) {
         // read error
       }
     };
 
     getData();
-  });
+  },[]);
 
   return (
     <View>
       <Text>Existing Alarm</Text>
-      <Text>{data.coinPair}</Text>
+      {data && <Text>{data.price}</Text>}
     </View>
   );
 };
