@@ -3,7 +3,7 @@ import { Button, StyleSheet, Text, View, TextInput, Modal, Pressable, Alert} fro
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const NewAlarm = () => {
+const NewAlarm = ({ navigation }) => {
   const [coinPair, setCoinPair] = useState("");
   const [moreThan, setMoreThan] = useState(null);
   const [currentPrice, setCurrentPrice] = useState(null)
@@ -49,7 +49,7 @@ const NewAlarm = () => {
           <View style={{margin:50, padding:40, backgroundColor: "white"}}>
             <Text style={{ fontSize: 20 }}>Alarm Saved!</Text>
             <Pressable onPress={() => {
-              setModalVisible(!modalVisible)
+              setModalVisible(!modalVisible); navigation.navigate("ExistingAlarm")
           }}><Text>Close Modal</Text></Pressable>
           </View>
         </View>
