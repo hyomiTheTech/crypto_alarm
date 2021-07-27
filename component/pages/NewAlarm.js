@@ -19,6 +19,8 @@ const NewAlarm = ({ navigation }) => {
   const [currentPrice, setCurrentPrice] = useState(null);
   const [price, setPrice] = useState(null);
   const [alarmSound, setAlarmSound] = useState(null);
+  // editing price
+  const [editingAlarmPrice, setEditingAlarmPrice] = useState(null);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -26,6 +28,9 @@ const NewAlarm = ({ navigation }) => {
   const { editingAlarmIndex } = useContext(EditAlarmContext);
 
   useEffect(() => {
+    editingAlarmData === null
+      ? null
+      : setEditingAlarmPrice(editingAlarmData.price);
     fetch(
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
     )
@@ -49,7 +54,7 @@ const NewAlarm = ({ navigation }) => {
       const value = {
         coinPair: coinPair,
         moreThan: moreThan,
-        price: price,
+        price: editingAlarmData === null ? price : editingAlarmPrice,
         alarmSound: alarmSound,
       };
       const jsonValue = JSON.stringify(value);
@@ -99,7 +104,7 @@ const NewAlarm = ({ navigation }) => {
           />
         ) : (
           <RNPickerSelect
-            // style={styles.inputAndroid}
+            style={styles.inputAndroid}
             useNativeAndroidPickerStyle={false}
             fixAndroidTouchableBug={true}
             onValueChange={(value) => setCoinPair(value)}
@@ -146,12 +151,20 @@ const NewAlarm = ({ navigation }) => {
       </View>
       <View>
         <Text>Price</Text>
-        <TextInput
-          onChangeText={setPrice}
-          style={styles.priceInput}
-          placeholder={"Price"}
-          value={editingAlarmData === null ? undefined : editingAlarmData.price}
-        />
+        {editingAlarmData === null ? (
+          <TextInput
+            onChangeText={setPrice}
+            style={styles.priceInput}
+            placeholder={"Price"}
+          />
+        ) : (
+          <TextInput
+            onChangeText={setEditingAlarmPrice}
+            style={styles.priceInput}
+            placeholder={"Price"}
+            value={editingAlarmPrice}
+          />
+        )}
       </View>
       <View>
         <Text>Alarm Sound</Text>
@@ -190,7 +203,6 @@ const NewAlarm = ({ navigation }) => {
           title="Save"
           onPress={() => {
             storeData();
-            // increaseAlarmIndex();
           }}
         />
       </View>

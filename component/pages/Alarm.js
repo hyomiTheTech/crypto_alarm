@@ -68,12 +68,6 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
           setUpdate(!update);
         }}
       />
-      <Button
-        title="Sound"
-        onPress={() => {
-          playSound();
-        }}
-      />
     </TouchableOpacity>
   );
 };
