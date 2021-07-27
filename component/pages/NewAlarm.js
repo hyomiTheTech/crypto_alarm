@@ -11,8 +11,7 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {EditAlarmContext} from '../context/EditAlarmContextProvider'
-
+import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 
 const NewAlarm = ({ navigation }) => {
   const [coinPair, setCoinPair] = useState("");
@@ -23,8 +22,8 @@ const NewAlarm = ({ navigation }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const {editingAlarmData} = useContext(EditAlarmContext)
-  const {editingAlarmIndex} = useContext(EditAlarmContext)
+  const { editingAlarmData } = useContext(EditAlarmContext);
+  const { editingAlarmIndex } = useContext(EditAlarmContext);
 
   useEffect(() => {
     fetch(
@@ -54,10 +53,11 @@ const NewAlarm = ({ navigation }) => {
         alarmSound: alarmSound,
       };
       const jsonValue = JSON.stringify(value);
-      
-      await AsyncStorage.setItem( editingAlarmIndex === null? `@${Math.random()}` : editingAlarmIndex, jsonValue).then(() =>
-        setModalVisible(!modalVisible)
-      );
+
+      await AsyncStorage.setItem(
+        editingAlarmIndex === null ? `@${Math.random()}` : editingAlarmIndex,
+        jsonValue
+      ).then(() => setModalVisible(!modalVisible));
     } catch (e) {
       error(e);
     }
@@ -83,58 +83,66 @@ const NewAlarm = ({ navigation }) => {
       <View>{currentPrice && <Text>Current Price: ${currentPrice}</Text>}</View>
       <View>
         <Text>Coin Pair</Text>
-        {editingAlarmData === null ? <RNPickerSelect
-          // style={styles.inputAndroid}
-          useNativeAndroidPickerStyle={false}
-          fixAndroidTouchableBug={true}
-          onValueChange={(value) => setCoinPair(value)}
-          name="coinPair"
-          items={[
-            { label: "BTC-USD", value: "BTC-USD" },
-            { label: "ETH-USD", value: "ETH-USD" },
-            { label: "LTC-USD", value: "LTC-USD" },
-          ]}
-          placeholder={{label: "LTC-USD", value: "LTC-USD" }}
-        />: <RNPickerSelect
-          // style={styles.inputAndroid}
-          useNativeAndroidPickerStyle={false}
-          fixAndroidTouchableBug={true}
-          onValueChange={(value) => setCoinPair(value)}
-          name="coinPair"
-          items={[
-            { label: "BTC-USD", value: "BTC-USD" },
-            { label: "ETH-USD", value: "ETH-USD" },
-            { label: "LTC-USD", value: "LTC-USD" },
-          ]}
-          placeholder={{}}
-          value={editingAlarmData.coinPair}
-        />}
+        {editingAlarmData === null ? (
+          <RNPickerSelect
+            // style={styles.inputAndroid}
+            useNativeAndroidPickerStyle={false}
+            fixAndroidTouchableBug={true}
+            onValueChange={(value) => setCoinPair(value)}
+            name="coinPair"
+            items={[
+              { label: "BTC-USD", value: "BTC-USD" },
+              { label: "ETH-USD", value: "ETH-USD" },
+              { label: "LTC-USD", value: "LTC-USD" },
+            ]}
+            placeholder={{ label: "LTC-USD", value: "LTC-USD" }}
+          />
+        ) : (
+          <RNPickerSelect
+            // style={styles.inputAndroid}
+            useNativeAndroidPickerStyle={false}
+            fixAndroidTouchableBug={true}
+            onValueChange={(value) => setCoinPair(value)}
+            name="coinPair"
+            items={[
+              { label: "BTC-USD", value: "BTC-USD" },
+              { label: "ETH-USD", value: "ETH-USD" },
+              { label: "LTC-USD", value: "LTC-USD" },
+            ]}
+            placeholder={{}}
+            value={editingAlarmData.coinPair}
+          />
+        )}
       </View>
       <View>
-      {editingAlarmData === null ? <RNPickerSelect
-          name="moreThan"
-          style={styles.inputAndroid}
-          useNativeAndroidPickerStyle={false}
-          fixAndroidTouchableBug={true}
-          onValueChange={(value) => setMoreThan(value)}
-          items={[
-            { label: "Less Than", value: "Less Than" },
-            { label: "More Than", value: "More Than" },
-          ]}
-          placeholder={{}}
-        /> : <RNPickerSelect
-        name="moreThan"
-        style={styles.inputAndroid}
-        useNativeAndroidPickerStyle={false}
-        fixAndroidTouchableBug={true}
-        onValueChange={(value) => setMoreThan(value)}
-        items={[
-          { label: "Less Than", value: "Less Than" },
-          { label: "More Than", value: "More Than" },
-        ]}
-        placeholder={{}}
-        value={editingAlarmData.moreThan}
-      /> }
+        {editingAlarmData === null ? (
+          <RNPickerSelect
+            name="moreThan"
+            style={styles.inputAndroid}
+            useNativeAndroidPickerStyle={false}
+            fixAndroidTouchableBug={true}
+            onValueChange={(value) => setMoreThan(value)}
+            items={[
+              { label: "Less Than", value: "Less Than" },
+              { label: "More Than", value: "More Than" },
+            ]}
+            placeholder={{}}
+          />
+        ) : (
+          <RNPickerSelect
+            name="moreThan"
+            style={styles.inputAndroid}
+            useNativeAndroidPickerStyle={false}
+            fixAndroidTouchableBug={true}
+            onValueChange={(value) => setMoreThan(value)}
+            items={[
+              { label: "Less Than", value: "Less Than" },
+              { label: "More Than", value: "More Than" },
+            ]}
+            placeholder={{}}
+            value={editingAlarmData.moreThan}
+          />
+        )}
       </View>
       <View>
         <Text>Price</Text>
@@ -142,36 +150,39 @@ const NewAlarm = ({ navigation }) => {
           onChangeText={setPrice}
           style={styles.priceInput}
           placeholder={"Price"}
-          value={editingAlarmData === null ?  undefined: Number(editingAlarmData.price)}
+          value={editingAlarmData === null ? undefined : editingAlarmData.price}
         />
       </View>
       <View>
         <Text>Alarm Sound</Text>
-        {editingAlarmData === null ? <RNPickerSelect
-          style={styles.inputAndroid}
-          useNativeAndroidPickerStyle={false}
-          fixAndroidTouchableBug={true}
-          onValueChange={(value) => setAlarmSound(value)}
-          items={[
-            { label: "Bitconnect", value: "Bitconnect" },
-            { label: "Elon Musk", value: "Elon Musk" },
-            { label: "Standard", value: "Standard" },
-          ]}
-          placeholder={{}}
-          
-        /> :<RNPickerSelect
-        style={styles.inputAndroid}
-        useNativeAndroidPickerStyle={false}
-        fixAndroidTouchableBug={true}
-        onValueChange={(value) => setAlarmSound(value)}
-        items={[
-          { label: "Bitconnect", value: "Bitconnect" },
-          { label: "Elon Musk", value: "Elon Musk" },
-          { label: "Standard", value: "Standard" },
-        ]}
-        placeholder={{}}
-        value={editingAlarmData.alarmSound}
-      />}
+        {editingAlarmData === null ? (
+          <RNPickerSelect
+            style={styles.inputAndroid}
+            useNativeAndroidPickerStyle={false}
+            fixAndroidTouchableBug={true}
+            onValueChange={(value) => setAlarmSound(value)}
+            items={[
+              { label: "Bitconnect", value: "Bitconnect" },
+              { label: "Elon Musk", value: "Elon Musk" },
+              { label: "Standard", value: "Standard" },
+            ]}
+            placeholder={{}}
+          />
+        ) : (
+          <RNPickerSelect
+            style={styles.inputAndroid}
+            useNativeAndroidPickerStyle={false}
+            fixAndroidTouchableBug={true}
+            onValueChange={(value) => setAlarmSound(value)}
+            items={[
+              { label: "Bitconnect", value: "Bitconnect" },
+              { label: "Elon Musk", value: "Elon Musk" },
+              { label: "Standard", value: "Standard" },
+            ]}
+            placeholder={{}}
+            value={editingAlarmData.alarmSound}
+          />
+        )}
       </View>
       <View>
         <Button
