@@ -11,7 +11,14 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
+
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
+import { LivePriceContext } from "../context/LivePriceContextProvider";
+
+// 1. Define the task by providing a name and the function that should be executed
+// Note: This needs to be called in the global scope (e.g outside of your React components)
 
 const NewAlarm = ({ navigation }) => {
   const [coinPair, setCoinPair] = useState("");
@@ -24,13 +31,31 @@ const NewAlarm = ({ navigation }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
+  // context
   const { editingAlarmData } = useContext(EditAlarmContext);
   const { editingAlarmIndex } = useContext(EditAlarmContext);
+  const { setLiveBitcoinPrice } = useContext(LivePriceContext);
+
+  TaskManager.defineTask("Bitcoin-price", async () => {
+    // Be sure to return the successful result type!
+    setLiveBitcoinPrice(currentPrice);
+
+    return BackgroundFetch.Result.NewData;
+  });
+
+  async function registerBackgroundFetchAsync() {
+    return BackgroundFetch.registerTaskAsync("Bitcoin-price", {
+      minimumInterval: 2 * 15, // 15 minutes
+      stopOnTerminate: false, // android only,
+      startOnBoot: true, // android only
+    });
+  }
 
   useEffect(() => {
     editingAlarmData === null
       ? null
       : setEditingAlarmPrice(editingAlarmData.price);
+
     fetch(
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
     )
@@ -54,6 +79,7 @@ const NewAlarm = ({ navigation }) => {
       const value = {
         coinPair: coinPair,
         moreThan: moreThan,
+        // toggle between new alarm price and editing alarm price
         price: editingAlarmData === null ? price : editingAlarmPrice,
         alarmSound: alarmSound,
       };
@@ -175,9 +201,10 @@ const NewAlarm = ({ navigation }) => {
             fixAndroidTouchableBug={true}
             onValueChange={(value) => setAlarmSound(value)}
             items={[
-              { label: "Bitconnect", value: "Bitconnect" },
-              { label: "Elon Musk", value: "Elon Musk" },
-              { label: "Standard", value: "Standard" },
+              { label: "Morning Clock", value: "Morning Clock" },
+              { label: "Slot Machine", value: "Slot Machine" },
+              { label: "Police Siren", value: "Police Siren" },
+              { label: "Buglar Alert", value: "Buglar Alert" },
             ]}
             placeholder={{}}
           />
@@ -188,9 +215,10 @@ const NewAlarm = ({ navigation }) => {
             fixAndroidTouchableBug={true}
             onValueChange={(value) => setAlarmSound(value)}
             items={[
-              { label: "Bitconnect", value: "Bitconnect" },
-              { label: "Elon Musk", value: "Elon Musk" },
-              { label: "Standard", value: "Standard" },
+              { label: "Morning Clock", value: "Morning Clock" },
+              { label: "Slot Machine", value: "Slot Machine" },
+              { label: "Police Siren", value: "Police Siren" },
+              { label: "Buglar Alert", value: "Buglar Alert" },
             ]}
             placeholder={{}}
             value={editingAlarmData.alarmSound}
@@ -203,6 +231,8 @@ const NewAlarm = ({ navigation }) => {
           title="Save"
           onPress={() => {
             storeData();
+            registerBackgroundFetchAsync();
+            alert("3123");
           }}
         />
       </View>

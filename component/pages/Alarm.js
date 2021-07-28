@@ -24,13 +24,11 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
   };
 
   async function playSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("../../assets/hello.mp3")
-    );
+    const { sound } = await Audio.Sound
+      .createAsync
+      // require("../../assets/hello.mp3")
+      ();
     setSound(sound);
-
-    console.log("Playing Sound");
     await sound.playAsync();
   }
 
@@ -38,7 +36,6 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
     getMyObject();
     return sound
       ? () => {
-          console.log("Unloading Sound");
           sound.unloadAsync();
         }
       : undefined;
