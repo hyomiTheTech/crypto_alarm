@@ -24,21 +24,21 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
   };
 
   async function playSound() {
-    const { sound } = await Audio.Sound
-      .createAsync
-      // require("../../assets/hello.mp3")
-      ();
+    const { sound } = await Audio.Sound.createAsync();
     setSound(sound);
     await sound.playAsync();
   }
 
   useEffect(() => {
     getMyObject();
-    return sound
-      ? () => {
-          sound.unloadAsync();
-        }
-      : undefined;
+    return () => {
+      sound
+        ? () => {
+            sound.unloadAsync();
+          }
+        : undefined;
+      getMyObject();
+    };
   }, [sound]);
 
   return (
@@ -47,13 +47,13 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
       onPress={() => {
         setEditingAlarmData(data);
         setEditingAlarmIndex(alarmIndex);
-        navigation.navigate("NewAlarm");
+        navigation.push("NewAlarm");
       }}
     >
       {data && (
         <>
           <Text style={styles.text}>Coin Pair: {data.coinPair}</Text>
-          <Text style={styles.text}>Side: {data.moreThan}</Text>
+          <Text style={styles.text}>Condition: {data.condition}</Text>
           <Text style={styles.text}>Price: {data.price}</Text>
           <Text style={styles.text}>Sound: {data.alarmSound}</Text>
         </>

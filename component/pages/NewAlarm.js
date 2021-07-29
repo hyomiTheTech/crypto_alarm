@@ -17,17 +17,12 @@ import * as TaskManager from "expo-task-manager";
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
 
-// 1. Define the task by providing a name and the function that should be executed
-// Note: This needs to be called in the global scope (e.g outside of your React components)
-
 const NewAlarm = ({ navigation }) => {
-  const [coinPair, setCoinPair] = useState("");
-  const [moreThan, setMoreThan] = useState(null);
+  const [coinPair, setCoinPair] = useState("BTC-USD");
+  const [condition, setCondition] = useState("Less Than");
   const [currentPrice, setCurrentPrice] = useState(null);
   const [price, setPrice] = useState(null);
-  const [alarmSound, setAlarmSound] = useState(null);
-  // editing price
-  const [editingAlarmPrice, setEditingAlarmPrice] = useState(null);
+  const [alarmSound, setAlarmSound] = useState("Morning Clock");
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -45,16 +40,28 @@ const NewAlarm = ({ navigation }) => {
 
   async function registerBackgroundFetchAsync() {
     return BackgroundFetch.registerTaskAsync("Bitcoin-price", {
-      minimumInterval: 2 * 15, // 15 minutes
+      minimumInterval: 1 * 15, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
     });
   }
 
+  function clearState() {
+    setAlarmSound("Morning Clock");
+    setCoinPair("BTC-USD");
+    setCondition("Less Than");
+    setPrice(null);
+  }
+
+  function retrieveEditingData() {
+    setCoinPair(editingAlarmData.coinPair);
+    setCondition(editingAlarmData.condition);
+    setAlarmSound(editingAlarmData.alarmSound);
+    setPrice(editingAlarmData.price);
+  }
+
   useEffect(() => {
-    editingAlarmData === null
-      ? null
-      : setEditingAlarmPrice(editingAlarmData.price);
+    editingAlarmData === null ? null : retrieveEditingData();
 
     fetch(
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
@@ -74,19 +81,22 @@ const NewAlarm = ({ navigation }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const createIndex = () => {
+    return `${coinPair}${Math.random()}`;
+  };
+
   const storeData = async () => {
     try {
       const value = {
         coinPair: coinPair,
-        moreThan: moreThan,
-        // toggle between new alarm price and editing alarm price
-        price: editingAlarmData === null ? price : editingAlarmPrice,
+        condition: condition,
+        price: price,
         alarmSound: alarmSound,
       };
       const jsonValue = JSON.stringify(value);
 
       await AsyncStorage.setItem(
-        editingAlarmIndex === null ? `@${Math.random()}` : editingAlarmIndex,
+        editingAlarmIndex === null ? createIndex() : editingAlarmIndex,
         jsonValue
       ).then(() => setModalVisible(!modalVisible));
     } catch (e) {
@@ -102,8 +112,9 @@ const NewAlarm = ({ navigation }) => {
             <Text style={{ fontSize: 20 }}>Alarm Saved!</Text>
             <Pressable
               onPress={() => {
+                clearState();
                 setModalVisible(!modalVisible);
-                navigation.navigate("ExistingAlarm");
+                navigation.push("ExistingAlarm");
               }}
             >
               <Text>Close Modal</Text>
@@ -114,116 +125,66 @@ const NewAlarm = ({ navigation }) => {
       <View>{currentPrice && <Text>Current Price: ${currentPrice}</Text>}</View>
       <View>
         <Text>Coin Pair</Text>
-        {editingAlarmData === null ? (
-          <RNPickerSelect
-            // style={styles.inputAndroid}
-            useNativeAndroidPickerStyle={false}
-            fixAndroidTouchableBug={true}
-            onValueChange={(value) => setCoinPair(value)}
-            name="coinPair"
-            items={[
-              { label: "BTC-USD", value: "BTC-USD" },
-              { label: "ETH-USD", value: "ETH-USD" },
-              { label: "LTC-USD", value: "LTC-USD" },
-            ]}
-            placeholder={{ label: "LTC-USD", value: "LTC-USD" }}
-          />
-        ) : (
-          <RNPickerSelect
-            style={styles.inputAndroid}
-            useNativeAndroidPickerStyle={false}
-            fixAndroidTouchableBug={true}
-            onValueChange={(value) => setCoinPair(value)}
-            name="coinPair"
-            items={[
-              { label: "BTC-USD", value: "BTC-USD" },
-              { label: "ETH-USD", value: "ETH-USD" },
-              { label: "LTC-USD", value: "LTC-USD" },
-            ]}
-            placeholder={{}}
-            value={editingAlarmData.coinPair}
-          />
-        )}
+
+        <RNPickerSelect
+          // style={styles.inputAndroid}
+          useNativeAndroidPickerStyle={false}
+          fixAndroidTouchableBug={true}
+          onValueChange={(value) => setCoinPair(value)}
+          name="coinPair"
+          items={[
+            { label: "BTC-USD", value: "BTC-USD" },
+            { label: "ETH-USD", value: "ETH-USD" },
+            { label: "LTC-USD", value: "LTC-USD" },
+          ]}
+          placeholder={{}}
+          value={coinPair}
+        />
       </View>
       <View>
-        {editingAlarmData === null ? (
-          <RNPickerSelect
-            name="moreThan"
-            style={styles.inputAndroid}
-            useNativeAndroidPickerStyle={false}
-            fixAndroidTouchableBug={true}
-            onValueChange={(value) => setMoreThan(value)}
-            items={[
-              { label: "Less Than", value: "Less Than" },
-              { label: "More Than", value: "More Than" },
-            ]}
-            placeholder={{}}
-          />
-        ) : (
-          <RNPickerSelect
-            name="moreThan"
-            style={styles.inputAndroid}
-            useNativeAndroidPickerStyle={false}
-            fixAndroidTouchableBug={true}
-            onValueChange={(value) => setMoreThan(value)}
-            items={[
-              { label: "Less Than", value: "Less Than" },
-              { label: "More Than", value: "More Than" },
-            ]}
-            placeholder={{}}
-            value={editingAlarmData.moreThan}
-          />
-        )}
+        <Text>Condition</Text>
+
+        <RNPickerSelect
+          name="condition"
+          style={styles.inputAndroid}
+          useNativeAndroidPickerStyle={false}
+          fixAndroidTouchableBug={true}
+          onValueChange={(value) => setCondition(value)}
+          items={[
+            { label: "Less Than", value: "Less Than" },
+            { label: "More Than", value: "More Than" },
+          ]}
+          placeholder={{}}
+          value={condition}
+        />
       </View>
       <View>
         <Text>Price</Text>
-        {editingAlarmData === null ? (
-          <TextInput
-            onChangeText={setPrice}
-            style={styles.priceInput}
-            placeholder={"Price"}
-          />
-        ) : (
-          <TextInput
-            onChangeText={setEditingAlarmPrice}
-            style={styles.priceInput}
-            placeholder={"Price"}
-            value={editingAlarmPrice}
-          />
-        )}
+
+        <TextInput
+          onChangeText={setPrice}
+          style={styles.priceInput}
+          placeholder={"Price"}
+          value={price}
+        />
       </View>
       <View>
         <Text>Alarm Sound</Text>
-        {editingAlarmData === null ? (
-          <RNPickerSelect
-            style={styles.inputAndroid}
-            useNativeAndroidPickerStyle={false}
-            fixAndroidTouchableBug={true}
-            onValueChange={(value) => setAlarmSound(value)}
-            items={[
-              { label: "Morning Clock", value: "Morning Clock" },
-              { label: "Slot Machine", value: "Slot Machine" },
-              { label: "Police Siren", value: "Police Siren" },
-              { label: "Buglar Alert", value: "Buglar Alert" },
-            ]}
-            placeholder={{}}
-          />
-        ) : (
-          <RNPickerSelect
-            style={styles.inputAndroid}
-            useNativeAndroidPickerStyle={false}
-            fixAndroidTouchableBug={true}
-            onValueChange={(value) => setAlarmSound(value)}
-            items={[
-              { label: "Morning Clock", value: "Morning Clock" },
-              { label: "Slot Machine", value: "Slot Machine" },
-              { label: "Police Siren", value: "Police Siren" },
-              { label: "Buglar Alert", value: "Buglar Alert" },
-            ]}
-            placeholder={{}}
-            value={editingAlarmData.alarmSound}
-          />
-        )}
+
+        <RNPickerSelect
+          style={styles.inputAndroid}
+          useNativeAndroidPickerStyle={false}
+          fixAndroidTouchableBug={true}
+          onValueChange={(value) => setAlarmSound(value)}
+          items={[
+            { label: "Morning Clock", value: "Morning Clock" },
+            { label: "Slot Machine", value: "Slot Machine" },
+            { label: "Police Siren", value: "Police Siren" },
+            { label: "Buglar Alert", value: "Buglar Alert" },
+          ]}
+          placeholder={{}}
+          value={alarmSound}
+        />
       </View>
       <View>
         <Button
@@ -232,7 +193,6 @@ const NewAlarm = ({ navigation }) => {
           onPress={() => {
             storeData();
             registerBackgroundFetchAsync();
-            alert("3123");
           }}
         />
       </View>
