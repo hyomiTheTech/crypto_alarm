@@ -22,9 +22,15 @@ const ExistingAlarm = ({ navigation }) => {
     }
   };
   useEffect(() => {
-    getData();
+    let isMounted = true;
 
-    return getData;
+    if (isMounted) {
+      getData();
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, [update]);
 
   const removeValue = async (key) => {

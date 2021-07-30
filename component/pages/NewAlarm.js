@@ -31,7 +31,11 @@ const NewAlarm = ({ navigation }) => {
   const { editingAlarmIndex } = useContext(EditAlarmContext);
   const { setLiveBitcoinPrice } = useContext(LivePriceContext);
 
-  TaskManager.defineTask("Bitcoin-price", async () => {
+  const createIndex = () => {
+    return `${coinPair}${Math.random()}`;
+  };
+
+  TaskManager.defineTask(createIndex(), async () => {
     // Be sure to return the successful result type!
     setLiveBitcoinPrice(currentPrice);
 
@@ -39,7 +43,7 @@ const NewAlarm = ({ navigation }) => {
   });
 
   async function registerBackgroundFetchAsync() {
-    return BackgroundFetch.registerTaskAsync("Bitcoin-price", {
+    return BackgroundFetch.registerTaskAsync(createIndex(), {
       minimumInterval: 1 * 15, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
@@ -80,10 +84,6 @@ const NewAlarm = ({ navigation }) => {
     }, 10000);
     return () => clearInterval(interval);
   }, []);
-
-  const createIndex = () => {
-    return `${coinPair}${Math.random()}`;
-  };
 
   const storeData = async () => {
     try {

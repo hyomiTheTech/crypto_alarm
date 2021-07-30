@@ -30,14 +30,16 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
   }
 
   useEffect(() => {
-    getMyObject();
+    let isMounted = true;
+
+    if (isMounted) getMyObject();
     return () => {
       sound
         ? () => {
             sound.unloadAsync();
           }
         : undefined;
-      getMyObject();
+      isMounted = false;
     };
   }, [sound]);
 
