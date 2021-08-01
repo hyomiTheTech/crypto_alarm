@@ -14,7 +14,7 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
   const getMyObject = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem(alarmIndex);
-      console.log(alarmIndex);
+      // console.log(alarmIndex);
       jsonValue != null ? JSON.parse(jsonValue) : null;
       setData(JSON.parse(jsonValue));
     } catch (e) {

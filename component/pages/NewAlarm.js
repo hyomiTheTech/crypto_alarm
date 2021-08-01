@@ -11,11 +11,58 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import * as BackgroundFetch from "expo-background-fetch";
-import * as TaskManager from "expo-task-manager";
-
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
+
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
+
+let backgroundCoinPair
+let backgroundCondition
+let backgroundAlarmIndex
+let backgroundAlarmSound
+let backgroundLivePrice
+
+function getData (data, pair) {
+  
+  if (pair === "bitcoin") {
+    return data.bitcoin.usd
+  } else if (pair === "litecoin") {
+    return data.litecoin.usd
+  } else if (pair === "ethereum") {
+    return data.ethereum.usd
+  }
+  
+}
+
+let setBackgroundLivePrice  = () => {
+}
+
+/*
+1. coinPair
+2. condition
+3. alarmIndex
+4. alarmSound
+
+fn
+1. setLive price
+*/
+
+
+TaskManager.defineTask("p11", async () => {
+  alert("real?")
+  
+
+  alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
+
+  fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
+  )
+    .then((response) => response.json())
+    .then((data) =>  setBackgroundLivePrice(getData(data, backgroundCoinPair)))
+  // Be sure to return the successful result type!
+  return BackgroundFetch.Result.NewData;
+});
 
 const NewAlarm = ({ navigation }) => {
   const [coinPair, setCoinPair] = useState("BTC-USD");
@@ -23,31 +70,38 @@ const NewAlarm = ({ navigation }) => {
   const [currentPrice, setCurrentPrice] = useState(null);
   const [price, setPrice] = useState(null);
   const [alarmSound, setAlarmSound] = useState("Morning Clock");
+  const [alarmIndex, setAlarmIndex] = useState(`${coinPair}${Math.random()}`)
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [currentTask, setCurrentTask] = useState("setLiveBitcoinPrice")
 
   // context
   const { editingAlarmData } = useContext(EditAlarmContext);
   const { editingAlarmIndex } = useContext(EditAlarmContext);
   const { setLiveBitcoinPrice } = useContext(LivePriceContext);
+  setBackgroundLivePrice = setLiveBitcoinPrice
 
-  const createIndex = () => {
-    return `${coinPair}${Math.random()}`;
-  };
-
-  TaskManager.defineTask(createIndex(), async () => {
-    // Be sure to return the successful result type!
-    setLiveBitcoinPrice(currentPrice);
-
-    return BackgroundFetch.Result.NewData;
-  });
 
   async function registerBackgroundFetchAsync() {
-    return BackgroundFetch.registerTaskAsync(createIndex(), {
+    return BackgroundFetch.registerTaskAsync("p11", {
       minimumInterval: 1 * 15, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
     });
+  }
+
+  function getCoinData (data) {
+    let coinData
+  
+    if (coinPair === "BTC-USD") {
+      coinData = data.bitcoin.usd
+    } else if (coinPair === "LTC-USD") {
+      coinData = data.litecoin.usd
+    } else if (coinPair === "ETH-USD") {
+      coinData = data.ethereum.usd
+    }
+  
+    return coinData
   }
 
   function clearState() {
@@ -66,24 +120,38 @@ const NewAlarm = ({ navigation }) => {
 
   useEffect(() => {
     editingAlarmData === null ? null : retrieveEditingData();
+    
+
+    
+
+    if (coinPair === "BTC-USD") {
+      backgroundCoinPair = "bitcoin"
+      setCurrentTask("setLiveBitcoinPrice")
+    } else if (coinPair === "LTC-USD") {
+      backgroundCoinPair = "litecoin"
+      setCurrentTask("setLiveLitecoinPrice")
+    } else if (coinPair === "ETH-USD") {
+      backgroundCoinPair = "ethereum"
+      setCurrentTask("setLiveEthereumPrice")
+    }
 
     fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+      `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
     )
       .then((response) => response.json())
-      .then((data) => setCurrentPrice(data.bitcoin.usd));
+      .then((data) =>  setCurrentPrice(getCoinData(data)));
 
     const interval = setInterval(() => {
       fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+        `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
       )
         .then((response) => response.json())
         .then((data) => {
-          setCurrentPrice(data.bitcoin.usd);
+          setCurrentPrice(getCoinData(data));
         });
     }, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [coinPair]);
 
   const storeData = async () => {
     try {
@@ -93,10 +161,16 @@ const NewAlarm = ({ navigation }) => {
         price: price,
         alarmSound: alarmSound,
       };
+      backgroundAlarmSound = alarmSound
+      backgroundCondition = condition
+      
+
+      registerBackgroundFetchAsync()
+
       const jsonValue = JSON.stringify(value);
 
       await AsyncStorage.setItem(
-        editingAlarmIndex === null ? createIndex() : editingAlarmIndex,
+        editingAlarmIndex === null ? alarmIndex : editingAlarmIndex,
         jsonValue
       ).then(() => setModalVisible(!modalVisible));
     } catch (e) {
@@ -192,7 +266,6 @@ const NewAlarm = ({ navigation }) => {
           title="Save"
           onPress={() => {
             storeData();
-            registerBackgroundFetchAsync();
           }}
         />
       </View>

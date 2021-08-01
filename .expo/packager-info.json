@@ -1,10 +1,10 @@
 {
   "expoServerPort": 19000,
-  "expoServerNgrokUrl": "https://et-i34.anonymous.crypto-alarm.exp.direct",
-  "packagerNgrokUrl": "https://packager.et-i34.anonymous.crypto-alarm.exp.direct",
-  "ngrokPid": 33983,
+  "expoServerNgrokUrl": null,
+  "packagerNgrokUrl": null,
+  "ngrokPid": null,
   "devToolsPort": 19002,
-  "packagerPort": 19004,
-  "packagerPid": 33966,
+  "packagerPort": 19000,
+  "packagerPid": null,
   "webpackServerPort": null
 }
