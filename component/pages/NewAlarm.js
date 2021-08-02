@@ -7,6 +7,7 @@ import {
   TextInput,
   Modal,
   Pressable,
+  Alert
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,11 +18,13 @@ import { LivePriceContext } from "../context/LivePriceContextProvider";
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
+import { Audio } from 'expo-av';
+
 let backgroundCoinPair
 let backgroundCondition
 let backgroundAlarmIndex
 let backgroundAlarmSound
-let backgroundLivePrice
+let backgroundPrice
 
 function getData (data, pair) {
   
@@ -39,6 +42,14 @@ let setBackgroundLivePrice  = () => {
 }
 
 /*
+1. have a three different defined tasks
+
+2. In each tasks
+  1. fetch the api data and set it live
+  2. set the if statement with saved price, condition, alarm sound 
+    - if the condition is achieved then trigger alarmsound
+
+
 1. coinPair
 2. condition
 3. alarmIndex
@@ -48,11 +59,60 @@ fn
 1. setLive price
 */
 
+TaskManager.defineTask("setLiveBitcoinPrice", async () => {
 
-TaskManager.defineTask("p11", async () => {
-  alert("real?")
+  let backgroundLivePrice 
   
+  alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
 
+  fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
+  )
+    .then((response) => response.json())
+    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); setBackgroundLivePrice(backgroundLivePrice) })
+
+    const createTwoButtonAlert = () =>
+    Alert.alert(
+      "Alert Title",
+      "My Alert Msg",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+      ],
+      { cancelable: false }
+    );
+
+    createTwoButtonAlert()
+
+    async function playSound() {
+
+      alert("woeking?")
+      
+      const { sound } = await Audio.Sound.createAsync(
+         require('../../assets/alarm-sound/mixkit-police-siren-us-1643.mp3')
+      );
+  
+      await sound.playAsync(); }
+
+      playSound()
+
+  // // 2. set the if statement with saved price, condition, alarm sound 
+  //   // - if the condition is achieved then trigger alarmsound
+  //   if (backgroundCondition === "More Than" && backgroundPrice > backgroundLivePrice) {
+  //     // alarmSound
+  //     if (backgroundPrice > backgroundLivePrice) {
+
+  //     }
+  //   }
+  return BackgroundFetch.Result.NewData;
+});
+
+TaskManager.defineTask("setLiveLitecoinPrice", async () => {
+  
   alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
 
   fetch(
@@ -60,7 +120,25 @@ TaskManager.defineTask("p11", async () => {
   )
     .then((response) => response.json())
     .then((data) =>  setBackgroundLivePrice(getData(data, backgroundCoinPair)))
-  // Be sure to return the successful result type!
+
+  // 2. set the if statement with saved price, condition, alarm sound 
+    // - if the condition is achieved then trigger alarmsound
+
+  return BackgroundFetch.Result.NewData;
+});
+
+TaskManager.defineTask("setLiveEthereumPrice", async () => {
+  
+  alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
+
+  fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
+  )
+    .then((response) => response.json())
+    .then((data) =>  setBackgroundLivePrice(getData(data, backgroundCoinPair)))
+
+  // 2. set the if statement with saved price, condition, alarm sound 
+    // - if the condition is achieved then trigger alarmsound
   return BackgroundFetch.Result.NewData;
 });
 
@@ -83,12 +161,13 @@ const NewAlarm = ({ navigation }) => {
 
 
   async function registerBackgroundFetchAsync() {
-    return BackgroundFetch.registerTaskAsync("p11", {
+    return BackgroundFetch.registerTaskAsync("setLiveBitcoinPrice", {
       minimumInterval: 1 * 15, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
     });
   }
+
 
   function getCoinData (data) {
     let coinData
@@ -163,7 +242,7 @@ const NewAlarm = ({ navigation }) => {
       };
       backgroundAlarmSound = alarmSound
       backgroundCondition = condition
-      
+      backgroundPrice = price
 
       registerBackgroundFetchAsync()
 

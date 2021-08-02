@@ -21,12 +21,6 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
       console.log(e);
       // read error
     }
-  };
-
-  async function playSound() {
-    const { sound } = await Audio.Sound.createAsync();
-    setSound(sound);
-    await sound.playAsync();
   }
 
   useEffect(() => {
