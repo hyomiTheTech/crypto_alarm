@@ -24,7 +24,12 @@ let backgroundCoinPair
 let backgroundCondition
 let backgroundAlarmIndex
 let backgroundAlarmSound
-let backgroundPrice
+
+let backgroundLiveBitcoinPrice
+let backgroundLiveEthereumPrice
+let backgroundLiveLitecoinPrice
+
+let backgroundExistingAlarmStore
 
 function getData (data, pair) {
   
@@ -38,107 +43,176 @@ function getData (data, pair) {
   
 }
 
-let setBackgroundLivePrice  = () => {
+let setBackgroundLiveBitcoinPrice  = () => {
 }
 
-/*
-1. have a three different defined tasks
+let setBackgroundLiveLitecoinPrice  = () => {
+}
 
-2. In each tasks
-  1. fetch the api data and set it live
-  2. set the if statement with saved price, condition, alarm sound 
-    - if the condition is achieved then trigger alarmsound
+let setBackgroundLiveEthereumPrice  = () => {
+}
 
 
-1. coinPair
-2. condition
-3. alarmIndex
-4. alarmSound
+//alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundPrice}`)
 
-fn
-1. setLive price
-*/
+// // 2. set the if statement with saved price, condition, alarm sound 
+//   // - if the condition is achieved then trigger alarmsound
+//   if (backgroundCondition === "More Than" && backgroundPrice > backgroundLivePrice) {
+//     // alarmSound
+//     if (backgroundPrice > backgroundLivePrice) {
+
+//     }
+//   }
+
+const getExistingAlarmKeys = async () => {
+  let keys = [];
+  try {
+    keys = await AsyncStorage.getAllKeys();
+  } catch (e) {
+    console.log(e);
+  }
+
+  return keys;
+};
+
+async function playMorningClock() {
+            
+  const { sound } = await Audio.Sound.createAsync(
+     require(`../../assets/alarm-sound/morning-clock.wav`)
+  );
+
+  await sound.playAsync(); }
+
+async function playPoliceSiren() {
+          
+  const { sound } = await Audio.Sound.createAsync(
+      require(`../../assets/alarm-sound/police-siren.wav`)
+  );
+
+await sound.playAsync(); }
+
+async function playBuglarAlert() {
+        
+  const { sound } = await Audio.Sound.createAsync(
+      require(`../../assets/alarm-sound/buglar-alert.wav`)
+  );
+  
+await sound.playAsync(); }
+
+async function playSlotMachine() {
+      
+  const { sound } = await Audio.Sound.createAsync(
+      require(`../../assets/alarm-sound/slot-machine.wav`)
+  );
+
+  await sound.playAsync(); }
+
+function playSound(soundData) {
+    
+  if (soundData === "Morning Clock") {
+    playMorningClock()
+  } else if (soundData ==="Police Siren") {
+    playPoliceSiren()
+  } else if (soundData === "Buglar Alert") {
+    playBuglarAlert()
+  } else if ("Slot Machine" === soundData) {
+    playSlotMachine()
+  }
+    }
+
+function getExistingAlarmData (data, pair, livePrice) {
+
+  for (const key of data) {
+    if (key.substring(0, 3) === pair) {
+        AsyncStorage.getItem(key).then((data) => {
+        let parsedData = JSON.parse(data)
+        
+        if (parsedData.condition === "Less Than" && Number(parsedData.price) > livePrice) {
+            playSound(parsedData.alarmSound)
+          const createTwoButtonAlert = () => {
+            Alert.alert(
+              pair,
+              pair,
+              [
+                {
+                  text: "Cancel",
+                  onPress: () => console.log("Cancel Pressed"),
+                  style: "cancel"
+                },
+                { text: "OK", onPress: () => console.log("OK Pressed") }
+              ],
+              { cancelable: false }
+            );
+          }
+          createTwoButtonAlert()
+        
+        } else if (parsedData.condition === "More Than" && Number(parsedData.price) < livePrice) {
+          playSound(parsedData.alarmSound)
+
+          const createTwoButtonAlert = () => {
+            Alert.alert(
+              pair,
+              pair,
+              [
+                {
+                  text: "Cancel",
+                  onPress: () => console.log("Cancel Pressed"),
+                  style: "cancel"
+                },
+                { text: "OK", onPress: () => console.log("OK Pressed") }
+              ],
+              { cancelable: false }
+            );
+          }
+          createTwoButtonAlert()
+        }
+      } )
+      
+    }
+  }
+}
+
 
 TaskManager.defineTask("setLiveBitcoinPrice", async () => {
-
   let backgroundLivePrice 
   
-  alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
-
   fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
   )
     .then((response) => response.json())
-    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); setBackgroundLivePrice(backgroundLivePrice) })
+    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); 
+      setBackgroundLiveBitcoinPrice(backgroundLivePrice);  
+      getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "BTC", backgroundLivePrice))})
 
-    const createTwoButtonAlert = () =>
-    Alert.alert(
-      "Alert Title",
-      "My Alert Msg",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel"
-        },
-        { text: "OK", onPress: () => console.log("OK Pressed") }
-      ],
-      { cancelable: false }
-    );
-
-    createTwoButtonAlert()
-
-    async function playSound() {
-
-      alert("woeking?")
-      
-      const { sound } = await Audio.Sound.createAsync(
-         require('../../assets/alarm-sound/mixkit-police-siren-us-1643.mp3')
-      );
-  
-      await sound.playAsync(); }
-
-      playSound()
-
-  // // 2. set the if statement with saved price, condition, alarm sound 
-  //   // - if the condition is achieved then trigger alarmsound
-  //   if (backgroundCondition === "More Than" && backgroundPrice > backgroundLivePrice) {
-  //     // alarmSound
-  //     if (backgroundPrice > backgroundLivePrice) {
-
-  //     }
-  //   }
   return BackgroundFetch.Result.NewData;
 });
 
 TaskManager.defineTask("setLiveLitecoinPrice", async () => {
   
-  alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
-
+  let backgroundLivePrice 
+  
   fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
   )
     .then((response) => response.json())
-    .then((data) =>  setBackgroundLivePrice(getData(data, backgroundCoinPair)))
-
-  // 2. set the if statement with saved price, condition, alarm sound 
-    // - if the condition is achieved then trigger alarmsound
-
+    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); 
+      setBackgroundLiveLitecoinPrice(backgroundLivePrice);  
+      getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "LTC", backgroundLivePrice))})
   return BackgroundFetch.Result.NewData;
 });
 
 TaskManager.defineTask("setLiveEthereumPrice", async () => {
   
-  alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundLivePrice}`)
-
+  let backgroundLivePrice 
+  
   fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
   )
     .then((response) => response.json())
-    .then((data) =>  setBackgroundLivePrice(getData(data, backgroundCoinPair)))
+    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); 
+      setBackgroundLiveEthereumPrice(backgroundLivePrice);  
+      getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "ETH", backgroundLivePrice))})
 
-  // 2. set the if statement with saved price, condition, alarm sound 
-    // - if the condition is achieved then trigger alarmsound
   return BackgroundFetch.Result.NewData;
 });
 
@@ -157,11 +231,27 @@ const NewAlarm = ({ navigation }) => {
   const { editingAlarmData } = useContext(EditAlarmContext);
   const { editingAlarmIndex } = useContext(EditAlarmContext);
   const { setLiveBitcoinPrice } = useContext(LivePriceContext);
-  setBackgroundLivePrice = setLiveBitcoinPrice
+  const { liveBitcoinPrice } = useContext(LivePriceContext);
 
+  const { setLiveLitecoinPrice } = useContext(LivePriceContext);
+  const { liveLitecoinPrice } = useContext(LivePriceContext);
+
+  const { setLiveEthereumPrice } = useContext(LivePriceContext);
+  const { liveEthereumPrice } = useContext(LivePriceContext);
+
+  const { setExistingAlarmsStore } = useContext(LivePriceContext);
+  const { existingAlarmsStore } = useContext(LivePriceContext);
+
+  setBackgroundLiveBitcoinPrice = setLiveBitcoinPrice
+  setBackgroundLiveEthereumPrice = setLiveEthereumPrice
+  setBackgroundLiveLitecoinPrice = setLiveLitecoinPrice
+
+  backgroundLiveBitcoinPrice = liveBitcoinPrice
+  backgroundLiveEthereumPrice = liveEthereumPrice
+  backgroundLiveLitecoinPrice = liveLitecoinPrice
 
   async function registerBackgroundFetchAsync() {
-    return BackgroundFetch.registerTaskAsync("setLiveBitcoinPrice", {
+    return BackgroundFetch.registerTaskAsync(currentTask, {
       minimumInterval: 1 * 15, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
@@ -198,10 +288,10 @@ const NewAlarm = ({ navigation }) => {
   }
 
   useEffect(() => {
-    editingAlarmData === null ? null : retrieveEditingData();
-    
 
-    
+    editingAlarmData === null ? null : retrieveEditingData();
+
+    setAlarmIndex(`${coinPair}${Math.random()}`)
 
     if (coinPair === "BTC-USD") {
       backgroundCoinPair = "bitcoin"
@@ -239,7 +329,9 @@ const NewAlarm = ({ navigation }) => {
         condition: condition,
         price: price,
         alarmSound: alarmSound,
+        isActive: true
       };
+
       backgroundAlarmSound = alarmSound
       backgroundCondition = condition
       backgroundPrice = price

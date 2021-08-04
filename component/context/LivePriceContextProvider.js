@@ -8,8 +8,6 @@ const LivePriceContextProvider = ({ children }) => {
   const [liveEthereumPrice, setLiveEthereumPrice] = useState(null);
   const [liveLitecoinPrice, setLiveLitecoinPrice] = useState(null);
 
-  const [existingAlarmsStore, setExistingAlarmsStore] = useState({});
-
   return (
     <LivePriceContext.Provider
       value={{
@@ -19,8 +17,6 @@ const LivePriceContextProvider = ({ children }) => {
         setLiveEthereumPrice,
         liveLitecoinPrice,
         setLiveLitecoinPrice,
-        existingAlarmsStore,
-        setExistingAlarmsStore,
       }}
     >
       {children}

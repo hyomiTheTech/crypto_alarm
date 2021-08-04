@@ -6,7 +6,6 @@ import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 
 const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
   const [data, setData] = useState({});
-  const [sound, setSound] = useState();
 
   const { setEditingAlarmData } = useContext(EditAlarmContext);
   const { setEditingAlarmIndex } = useContext(EditAlarmContext);
@@ -23,19 +22,30 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
     }
   }
 
-  useEffect(() => {
-    let isMounted = true;
+  const updateAlarmStatus = async () => {
+    try {
+      const value = {
+        coinPair: data.coinPair,
+        condition: data.condition,
+        price: data.price,
+        alarmSound: data.alarmSound,
+        isActive: !data.isActive
+      };
 
-    if (isMounted) getMyObject();
-    return () => {
-      sound
-        ? () => {
-            sound.unloadAsync();
-          }
-        : undefined;
-      isMounted = false;
-    };
-  }, [sound]);
+      const stringifiedValue = JSON.stringify(value)
+      await AsyncStorage.setItem(
+        alarmIndex,
+        stringifiedValue
+      )
+
+    } catch(e) {
+      error(e)
+    }
+  }
+
+  useEffect(() => {
+    getMyObject()
+  }, [data]);
 
   return (
     <TouchableOpacity
@@ -54,7 +64,8 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
           <Text style={styles.text}>Sound: {data.alarmSound}</Text>
         </>
       )}
-      <Button
+      {data.isActive === true ? (<Button title="Active" color='#2196F3' onPress={updateAlarmStatus} /> ) : (<Button title="Not Active" color="#808080" onPress={updateAlarmStatus} />)}
+        <Button
         title="Delete"
         onPress={() => {
           removeValue(alarmIndex);
