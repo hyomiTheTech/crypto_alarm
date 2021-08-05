@@ -20,16 +20,7 @@ import * as TaskManager from 'expo-task-manager';
 
 import { Audio } from 'expo-av';
 
-let backgroundCoinPair
-let backgroundCondition
-let backgroundAlarmIndex
-let backgroundAlarmSound
-
-let backgroundLiveBitcoinPrice
-let backgroundLiveEthereumPrice
-let backgroundLiveLitecoinPrice
-
-let backgroundExistingAlarmStore
+// the background coin pair is selected at the same time when the user select coin pairs
 
 function getData (data, pair) {
   
@@ -52,17 +43,16 @@ let setBackgroundLiveLitecoinPrice  = () => {
 let setBackgroundLiveEthereumPrice  = () => {
 }
 
+let setIsBackgroundLiveBitcoinPriceOn= () => {
+}
+let setIsBackgroundLiveEthereumPriceOn= () => {
+}
+let setIsBackgroundLiveLitecoinPriceOn= () => {
+}
 
-//alert(`value = ${backgroundCoinPair}, ${backgroundCondition}, ${backgroundAlarmIndex}, ${backgroundAlarmSound}, price: ${backgroundPrice}`)
-
-// // 2. set the if statement with saved price, condition, alarm sound 
-//   // - if the condition is achieved then trigger alarmsound
-//   if (backgroundCondition === "More Than" && backgroundPrice > backgroundLivePrice) {
-//     // alarmSound
-//     if (backgroundPrice > backgroundLivePrice) {
-
-//     }
-//   }
+let isBackgroundLiveBitcoinPriceOn = true
+let isBackgroundLiveLitecoinPriceOn = true
+let isBackgroundLiveEthereumPriceOn = true
 
 const getExistingAlarmKeys = async () => {
   let keys = [];
@@ -75,6 +65,7 @@ const getExistingAlarmKeys = async () => {
   return keys;
 };
 
+// each sound is played by its own function
 async function playMorningClock() {
             
   const { sound } = await Audio.Sound.createAsync(
@@ -107,6 +98,7 @@ async function playSlotMachine() {
 
   await sound.playAsync(); }
 
+// alarm sound function
 function playSound(soundData) {
     
   if (soundData === "Morning Clock") {
@@ -120,26 +112,68 @@ function playSound(soundData) {
   }
     }
 
+  const updateAlarmStatus = async (data, index) => {
+    try {
+      const value = {
+        coinPair: data.coinPair,
+        condition: data.condition,
+        price: data.price,
+        alarmSound: data.alarmSound,
+        isActive: !data.isActive
+      };
+
+      const stringifiedValue = JSON.stringify(value)
+      await AsyncStorage.setItem(
+        index,
+        stringifiedValue
+      )
+
+    } catch(e) {
+      error(e)
+    }
+  }
+
+// Not only does it get existing alarm data, but also it checks the condition of alarm as well.
 function getExistingAlarmData (data, pair, livePrice) {
 
   for (const key of data) {
     if (key.substring(0, 3) === pair) {
         AsyncStorage.getItem(key).then((data) => {
         let parsedData = JSON.parse(data)
+      // check for status of alarm.  
+      if (parsedData.isActive) {
+        // since the function is used for multiple function, I need to check which pair this function is used for.
+        // this statement would turn on the live price for corresponding pairs. It turns on because it checked one or more alarm is active.
+        switch (pair) {
+          case "BTC": 
+            setIsBackgroundLiveBitcoinPriceOn(true)
+            break;
+          case "LTC":
+            setIsBackgroundLiveLitecoinPriceOn(true)
+            break;
+          case "ETH":
+            setIsBackgroundLiveEthereumPriceOn(true)
+            break;  
+        }
         
-        if (parsedData.condition === "Less Than" && Number(parsedData.price) > livePrice) {
+        // condition checking
+        if (parsedData.condition === "Less Than" && Number(parsedData.price) > livePrice ) {
             playSound(parsedData.alarmSound)
+          
+          // Alarm alert that pop up when the alarm is triggered
           const createTwoButtonAlert = () => {
             Alert.alert(
-              pair,
-              pair,
+              `what is goingon...!`,
+              `${pair} is ${parsedData.condition} ${parsedData.price}!`,
               [
                 {
-                  text: "Cancel",
-                  onPress: () => console.log("Cancel Pressed"),
+                  text: "Dismiss",
+                  // turn setIsactive(false)
+                  onPress: () => updateAlarmStatus(parsedData, key),
                   style: "cancel"
                 },
-                { text: "OK", onPress: () => console.log("OK Pressed") }
+                // turn setIsactive(false)
+                { text: "OK", onPress: () => updateAlarmStatus(parsedData, key) }
               ],
               { cancelable: false }
             );
@@ -151,68 +185,79 @@ function getExistingAlarmData (data, pair, livePrice) {
 
           const createTwoButtonAlert = () => {
             Alert.alert(
-              pair,
-              pair,
+              `what is goingon..`,
+              `${pair} is ${parsedData.condition} ${parsedData.price}!`,
               [
                 {
                   text: "Cancel",
-                  onPress: () => console.log("Cancel Pressed"),
+                  onPress: () => updateAlarmStatus(parsedData, key),
                   style: "cancel"
                 },
-                { text: "OK", onPress: () => console.log("OK Pressed") }
+                { text: "OK", onPress: () => updateAlarmStatus(parsedData, key) }
               ],
               { cancelable: false }
             );
           }
           createTwoButtonAlert()
         }
-      } )
+      } }
+    )
       
     }
   }
 }
 
 
-TaskManager.defineTask("setLiveBitcoinPrice", async () => {
-  let backgroundLivePrice 
-  
-  fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
-  )
-    .then((response) => response.json())
-    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); 
-      setBackgroundLiveBitcoinPrice(backgroundLivePrice);  
-      getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "BTC", backgroundLivePrice))})
+TaskManager.defineTask("setLiveBTCPrice", async () => {
+  console.log("setLiveBitcoinPrice still running")
 
+    let backgroundLivePrice 
+
+
+    fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd`
+      )
+      .then((response) => response.json()).catch((e) => console.log(e))
+      .then((data) =>  { backgroundLivePrice = getData(data, "bitcoin"); 
+        setBackgroundLiveBitcoinPrice(backgroundLivePrice);  
+        // the data below is a array with keys
+        getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "BTC", backgroundLivePrice))})
+  
   return BackgroundFetch.Result.NewData;
 });
 
-TaskManager.defineTask("setLiveLitecoinPrice", async () => {
+TaskManager.defineTask("setLiveLTCPrice", async () => {
+  console.log("setLiveLitecoinPrice still running")
+
+
+    let backgroundLivePrice 
+
+    fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=usd`
+    )
+      .then((response) => response.json()).catch((e) => console.log(e))
+      .then((data) =>  { backgroundLivePrice = getData(data, "litecoin"); 
+        setBackgroundLiveLitecoinPrice(backgroundLivePrice);  
+        // the data below is a array with keys
+        getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "LTC", backgroundLivePrice))})
   
-  let backgroundLivePrice 
-  
-  fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
-  )
-    .then((response) => response.json())
-    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); 
-      setBackgroundLiveLitecoinPrice(backgroundLivePrice);  
-      getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "LTC", backgroundLivePrice))})
-  return BackgroundFetch.Result.NewData;
+      return BackgroundFetch.Result.NewData;
 });
 
-TaskManager.defineTask("setLiveEthereumPrice", async () => {
+TaskManager.defineTask("setLiveETHPrice", async () => {
+  console.log("setLiveEthPrice still running")
   
-  let backgroundLivePrice 
+    let backgroundLivePrice 
+    
+    fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
+    )
+      .then((response) => response.json()).catch((e) => console.log(e))
+      .then((data) =>  { backgroundLivePrice = getData(data, "ethereum"); 
+        setBackgroundLiveEthereumPrice(backgroundLivePrice);  
+        // the data below is a array with keys
+        getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "ETH", backgroundLivePrice))})
   
-  fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
-  )
-    .then((response) => response.json())
-    .then((data) =>  { backgroundLivePrice = getData(data, backgroundCoinPair); 
-      setBackgroundLiveEthereumPrice(backgroundLivePrice);  
-      getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "ETH", backgroundLivePrice))})
-
   return BackgroundFetch.Result.NewData;
 });
 
@@ -225,11 +270,13 @@ const NewAlarm = ({ navigation }) => {
   const [alarmIndex, setAlarmIndex] = useState(`${coinPair}${Math.random()}`)
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentTask, setCurrentTask] = useState("setLiveBitcoinPrice")
+ 
 
   // context
   const { editingAlarmData } = useContext(EditAlarmContext);
   const { editingAlarmIndex } = useContext(EditAlarmContext);
+  const { setEditingAlarmIndex } = useContext(EditAlarmContext);
+  const { setEditingAlarmData } = useContext(EditAlarmContext);
   const { setLiveBitcoinPrice } = useContext(LivePriceContext);
   const { liveBitcoinPrice } = useContext(LivePriceContext);
 
@@ -239,8 +286,17 @@ const NewAlarm = ({ navigation }) => {
   const { setLiveEthereumPrice } = useContext(LivePriceContext);
   const { liveEthereumPrice } = useContext(LivePriceContext);
 
-  const { setExistingAlarmsStore } = useContext(LivePriceContext);
-  const { existingAlarmsStore } = useContext(LivePriceContext);
+  const { setIsLiveBitcoinPriceOn } = useContext(LivePriceContext);
+  const { setIsLiveEthereumPriceOn } = useContext(LivePriceContext);
+  const { setIsLiveLitecoinPriceOn } = useContext(LivePriceContext);
+
+  const { isLiveBitcoinPriceOn } = useContext(LivePriceContext);
+  const { isLiveEthereumPriceOn } = useContext(LivePriceContext);
+  const { isLiveLitecoinPriceOn } = useContext(LivePriceContext);
+
+  setIsBackgroundLiveBitcoinPriceOn = setIsLiveBitcoinPriceOn
+  setIsBackgroundLiveEthereumPriceOn = setIsLiveEthereumPriceOn
+  setIsBackgroundLiveLitecoinPriceOn = setIsLiveLitecoinPriceOn
 
   setBackgroundLiveBitcoinPrice = setLiveBitcoinPrice
   setBackgroundLiveEthereumPrice = setLiveEthereumPrice
@@ -250,8 +306,28 @@ const NewAlarm = ({ navigation }) => {
   backgroundLiveEthereumPrice = liveEthereumPrice
   backgroundLiveLitecoinPrice = liveLitecoinPrice
 
-  async function registerBackgroundFetchAsync() {
-    return BackgroundFetch.registerTaskAsync(currentTask, {
+  isBackgroundLiveBitcoinPriceOn = isLiveBitcoinPriceOn
+  isBackgroundLiveLitecoinPriceOn = isLiveEthereumPriceOn
+  isBackgroundLiveEthereumPriceOn = isLiveLitecoinPriceOn
+
+  async function registerBTCFetchAsync() {
+    return await BackgroundFetch.registerTaskAsync("setLiveBTCPrice", {
+      minimumInterval: 1 * 15, // 15 minutes
+      stopOnTerminate: false, // android only,
+      startOnBoot: true, // android only
+    });
+  }
+
+  async function registerLTCFetchAsync() {
+    return await BackgroundFetch.registerTaskAsync("setLiveLTCPrice", {
+      minimumInterval: 1 * 15, // 15 minutes
+      stopOnTerminate: false, // android only,
+      startOnBoot: true, // android only
+    });
+  }
+
+  async function registerETHFetchAsync() {
+    return await BackgroundFetch.registerTaskAsync("setLiveETHPrice", {
       minimumInterval: 1 * 15, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
@@ -261,7 +337,6 @@ const NewAlarm = ({ navigation }) => {
 
   function getCoinData (data) {
     let coinData
-  
     if (coinPair === "BTC-USD") {
       coinData = data.bitcoin.usd
     } else if (coinPair === "LTC-USD") {
@@ -288,38 +363,37 @@ const NewAlarm = ({ navigation }) => {
   }
 
   useEffect(() => {
-
     editingAlarmData === null ? null : retrieveEditingData();
+
+    let selectedCoin
 
     setAlarmIndex(`${coinPair}${Math.random()}`)
 
-    if (coinPair === "BTC-USD") {
-      backgroundCoinPair = "bitcoin"
-      setCurrentTask("setLiveBitcoinPrice")
-    } else if (coinPair === "LTC-USD") {
-      backgroundCoinPair = "litecoin"
-      setCurrentTask("setLiveLitecoinPrice")
+    if(coinPair === "BTC-USD") {
+      selectedCoin = "bitcoin"
     } else if (coinPair === "ETH-USD") {
-      backgroundCoinPair = "ethereum"
-      setCurrentTask("setLiveEthereumPrice")
+      selectedCoin = "litecoin"
+    } else if (coinPair === "LTC-USD") {
+      selectedCoin = "ethereum"
     }
 
     fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
+      `https://api.coingecko.com/api/v3/simple/price?ids=${selectedCoin}&vs_currencies=usd`
     )
       .then((response) => response.json())
-      .then((data) =>  setCurrentPrice(getCoinData(data)));
+      .then((data) =>  {setCurrentPrice(getCoinData(data))});
 
     const interval = setInterval(() => {
       fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${backgroundCoinPair}&vs_currencies=usd`
+        `https://api.coingecko.com/api/v3/simple/price?ids=${selectedCoin}&vs_currencies=usd`
       )
         .then((response) => response.json())
         .then((data) => {
+     
           setCurrentPrice(getCoinData(data));
         });
     }, 10000);
-    return () => clearInterval(interval);
+    return () => {clearInterval(interval); setEditingAlarmData(null); setEditingAlarmIndex(null);}
   }, [coinPair]);
 
   const storeData = async () => {
@@ -336,7 +410,15 @@ const NewAlarm = ({ navigation }) => {
       backgroundCondition = condition
       backgroundPrice = price
 
-      registerBackgroundFetchAsync()
+      console.log("pair", coinPair)
+      
+      if (coinPair === "BTC-USD") {
+        await registerBTCFetchAsync()
+      } else if (coinPair === "LTC-USD") {
+        await registerLTCFetchAsync()
+      } else if (coinPair === "ETH-USD") {
+        await registerETHFetchAsync()
+      }
 
       const jsonValue = JSON.stringify(value);
 

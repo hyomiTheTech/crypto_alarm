@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useContext } from "react";
+import ReactDOM from 'react-dom'
 import { StyleSheet, Text, TouchableOpacity, Button } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
+import { LivePriceContext } from "../context/LivePriceContextProvider";
+import * as BackgroundFetch from 'expo-background-fetch';
 
-const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
+
+
+
+const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
   const [data, setData] = useState({});
 
   const { setEditingAlarmData } = useContext(EditAlarmContext);
   const { setEditingAlarmIndex } = useContext(EditAlarmContext);
+
+  const { setIsLiveBitcoinPriceOn } = useContext(LivePriceContext);
+  const { setIsLiveEthereumPriceOn } = useContext(LivePriceContext);
+  const { setIsLiveLitecoinPriceOn } = useContext(LivePriceContext);
 
   const getMyObject = async () => {
     try {
@@ -16,7 +26,7 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
       // console.log(alarmIndex);
       jsonValue != null ? JSON.parse(jsonValue) : null;
       setData(JSON.parse(jsonValue));
-    } catch (e) {
+    } catch (e) { 
       console.log(e);
       // read error
     }
@@ -44,8 +54,57 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
   }
 
   useEffect(() => {
-    getMyObject()
+    let isMounted = true;
+
+    if (isMounted) {
+      getMyObject()
+    }
+
+    return () => {
+      isMounted = false;
+    };
+
   }, [data]);
+
+    // helping functions
+const checkExistingAlarm = (data) => {
+  // let isLiveBTCOn = false
+  // let isLiveLTCOn = false
+  // let isLiveETHOn = false
+
+  // for (const key of data) {
+    
+  //   if (key.substring(0, 3) === "BTC") {
+  //     isLiveBTCOn = true
+  //   } else if (key.substring(0, 3) === "ETH") {
+  //     isLiveETHOn = true
+  //   } else if (key.substring(0, 3) === "LTC") {
+  //     isLiveLTCOn = true
+  //   }
+  // }
+  // // unregister task that is not necessary
+  // if (!isLiveBTCOn) {
+  //   setIsLiveBitcoinPriceOn(false)
+  // } 
+  // if (!isLiveLTCOn) {
+  //   setIsLiveEthereumPriceOn(false)
+  // } 
+  // if (!isLiveETHOn) {
+  //   setIsLiveLitecoinPriceOn(false)
+  // }
+}
+
+  const removeValue = async (key) => {
+    try {
+      await AsyncStorage.removeItem(key);
+      // check existing alarm keys to update background tasks status
+      await AsyncStorage.getAllKeys().then((data) => {checkExistingAlarm(data)})
+    } catch (e) {
+      // remove error
+      console.log(e);
+    }
+
+  };
 
   return (
     <TouchableOpacity
@@ -64,7 +123,7 @@ const Alarm = ({ navigation, alarmIndex, removeValue, update, setUpdate }) => {
           <Text style={styles.text}>Sound: {data.alarmSound}</Text>
         </>
       )}
-      {data.isActive === true ? (<Button title="Active" color='#2196F3' onPress={updateAlarmStatus} /> ) : (<Button title="Not Active" color="#808080" onPress={updateAlarmStatus} />)}
+      {data && data.isActive === true ? (<Button title="Active" color='#2196F3' onPress={updateAlarmStatus} /> ) : (<Button title="Not Active" color="#808080" onPress={updateAlarmStatus} />)}
         <Button
         title="Delete"
         onPress={() => {

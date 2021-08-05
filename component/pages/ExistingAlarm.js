@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as BackgroundFetch from 'expo-background-fetch';
 
 import Alarm from "./Alarm";
 
@@ -11,6 +12,12 @@ const ExistingAlarm = ({ navigation }) => {
   const [update, setUpdate] = useState(true);
 
   const { liveBitcoinPrice } = useContext(LivePriceContext);
+  const { liveLitecoinPrice } = useContext(LivePriceContext);
+  const { liveEthereumPrice } = useContext(LivePriceContext);
+
+   const { isLiveBitcoinPriceOn } = useContext(LivePriceContext);
+  const { isLiveLitecoinPriceOn } = useContext(LivePriceContext);
+  const { isLiveEthereumPriceOn } = useContext(LivePriceContext);
 
   const getData = async () => {
     let keys = [];
@@ -33,19 +40,26 @@ const ExistingAlarm = ({ navigation }) => {
     };
   }, [update]);
 
-  const removeValue = async (key) => {
-    try {
-      await AsyncStorage.removeItem(key);
-    } catch (e) {
-      // remove error
-      console.log(e);
-    }
-  };
-
   return (
+    // testing 
     <View>
       <Text>
-        Live Price: {liveBitcoinPrice === null ? "Nothing" : liveBitcoinPrice}
+        Live Bitcoin Price: {liveBitcoinPrice === null ? "Nothing" : liveBitcoinPrice}
+      </Text>
+      <Text>
+        Live LTC Price: {liveLitecoinPrice === null ? "Nothing" : liveLitecoinPrice}
+      </Text>
+      <Text>
+        Live Ethereum Price: {liveEthereumPrice === null ? "Nothing" : liveEthereumPrice}
+      </Text>
+      <Text>
+        BTC : {isLiveBitcoinPriceOn === true ? "True" : "False"}
+      </Text>
+      <Text>
+        LTC : {isLiveLitecoinPriceOn === true ? "True" : "False"}
+      </Text>
+      <Text>
+        ETH : {isLiveEthereumPriceOn === true ? "True" : "False"}
       </Text>
       {data && (
         <View>
@@ -54,7 +68,6 @@ const ExistingAlarm = ({ navigation }) => {
               key={alarmIndex}
               alarmIndex={alarmIndex}
               navigation={navigation}
-              removeValue={removeValue}
               update={update}
               setUpdate={setUpdate}
             />
