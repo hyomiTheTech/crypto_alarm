@@ -19,9 +19,12 @@ import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
 import { Audio } from 'expo-av';
+import * as Linking from 'expo-linking';
+
+
+
 
 // the background coin pair is selected at the same time when the user select coin pairs
-
 function getData (data, pair) {
   
   if (pair === "bitcoin") {
@@ -53,6 +56,11 @@ let setIsBackgroundLiveLitecoinPriceOn= () => {
 let isBackgroundLiveBitcoinPriceOn = true
 let isBackgroundLiveLitecoinPriceOn = true
 let isBackgroundLiveEthereumPriceOn = true
+
+let backgroundLiveBitcoinPrice 
+let backgroundLiveEthereumPrice 
+let backgroundLiveLitecoinPrice 
+
 
 const getExistingAlarmKeys = async () => {
   let keys = [];
@@ -158,12 +166,13 @@ function getExistingAlarmData (data, pair, livePrice) {
         
         // condition checking
         if (parsedData.condition === "Less Than" && Number(parsedData.price) > livePrice ) {
+          Linking.openURL("exp://192.168.43.185:19000/--/existingalarm")
             playSound(parsedData.alarmSound)
           
           // Alarm alert that pop up when the alarm is triggered
           const createTwoButtonAlert = () => {
             Alert.alert(
-              `what is goingon...!`,
+              `Let's Trade ${pair}!`,
               `${pair} is ${parsedData.condition} ${parsedData.price}!`,
               [
                 {
@@ -185,7 +194,7 @@ function getExistingAlarmData (data, pair, livePrice) {
 
           const createTwoButtonAlert = () => {
             Alert.alert(
-              `what is goingon..`,
+              `Let's Trade ${pair}!`,
               `${pair} is ${parsedData.condition} ${parsedData.price}!`,
               [
                 {
@@ -310,6 +319,7 @@ const NewAlarm = ({ navigation }) => {
   isBackgroundLiveLitecoinPriceOn = isLiveEthereumPriceOn
   isBackgroundLiveEthereumPriceOn = isLiveLitecoinPriceOn
 
+
   async function registerBTCFetchAsync() {
     return await BackgroundFetch.registerTaskAsync("setLiveBTCPrice", {
       minimumInterval: 1 * 15, // 15 minutes
@@ -388,10 +398,7 @@ const NewAlarm = ({ navigation }) => {
         `https://api.coingecko.com/api/v3/simple/price?ids=${selectedCoin}&vs_currencies=usd`
       )
         .then((response) => response.json())
-        .then((data) => {
-     
-          setCurrentPrice(getCoinData(data));
-        });
+        .then((data) => setCurrentPrice(getCoinData(data)));
     }, 10000);
     return () => {clearInterval(interval); setEditingAlarmData(null); setEditingAlarmIndex(null);}
   }, [coinPair]);
@@ -409,8 +416,6 @@ const NewAlarm = ({ navigation }) => {
       backgroundAlarmSound = alarmSound
       backgroundCondition = condition
       backgroundPrice = price
-
-      console.log("pair", coinPair)
       
       if (coinPair === "BTC-USD") {
         await registerBTCFetchAsync()

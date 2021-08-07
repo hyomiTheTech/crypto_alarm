@@ -2,10 +2,11 @@ import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
-const Home = ({ navigation }) => {
+const Home = ({ navigation, linkingData }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>CRYPTO ALARM</Text>
+      {linkingData === undefined ? <Text>nothing...</Text> :(<Text>{`blajsljf??: ${linkingData}`}</Text>) }
       <View style={styles.buttonContainer}>
         <Button
           color="#41444b"
