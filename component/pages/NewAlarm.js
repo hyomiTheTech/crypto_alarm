@@ -7,7 +7,6 @@ import {
   TextInput,
   Modal,
   Pressable,
-  Alert
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,260 +14,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
 
-import * as BackgroundFetch from 'expo-background-fetch';
-import * as TaskManager from 'expo-task-manager';
-
-import { Audio } from 'expo-av';
-import * as Linking from 'expo-linking';
-
-
-
-
-// the background coin pair is selected at the same time when the user select coin pairs
-function getData (data, pair) {
-  
-  if (pair === "bitcoin") {
-    return data.bitcoin.usd
-  } else if (pair === "litecoin") {
-    return data.litecoin.usd
-  } else if (pair === "ethereum") {
-    return data.ethereum.usd
-  }
-  
-}
-
-let setBackgroundLiveBitcoinPrice  = () => {
-}
-
-let setBackgroundLiveLitecoinPrice  = () => {
-}
-
-let setBackgroundLiveEthereumPrice  = () => {
-}
-
-let setIsBackgroundLiveBitcoinPriceOn= () => {
-}
-let setIsBackgroundLiveEthereumPriceOn= () => {
-}
-let setIsBackgroundLiveLitecoinPriceOn= () => {
-}
+import { registerBTCFetchAsync, registerLTCFetchAsync, registerETHFetchAsync} from '../helper-functions/BackgroundTaskHelperFunction'
 
 let isBackgroundLiveBitcoinPriceOn = true
 let isBackgroundLiveLitecoinPriceOn = true
-let isBackgroundLiveEthereumPriceOn = true
+let isBackgroundLiveEthereumPriceOn = true  
 
-let backgroundLiveBitcoinPrice 
-let backgroundLiveEthereumPrice 
-let backgroundLiveLitecoinPrice 
-
-
-const getExistingAlarmKeys = async () => {
-  let keys = [];
-  try {
-    keys = await AsyncStorage.getAllKeys();
-  } catch (e) {
-    console.log(e);
-  }
-
-  return keys;
-};
-
-// each sound is played by its own function
-async function playMorningClock() {
-            
-  const { sound } = await Audio.Sound.createAsync(
-     require(`../../assets/alarm-sound/morning-clock.wav`)
-  );
-
-  await sound.playAsync(); }
-
-async function playPoliceSiren() {
-          
-  const { sound } = await Audio.Sound.createAsync(
-      require(`../../assets/alarm-sound/police-siren.wav`)
-  );
-
-await sound.playAsync(); }
-
-async function playBuglarAlert() {
-        
-  const { sound } = await Audio.Sound.createAsync(
-      require(`../../assets/alarm-sound/buglar-alert.wav`)
-  );
-  
-await sound.playAsync(); }
-
-async function playSlotMachine() {
-      
-  const { sound } = await Audio.Sound.createAsync(
-      require(`../../assets/alarm-sound/slot-machine.wav`)
-  );
-
-  await sound.playAsync(); }
-
-// alarm sound function
-function playSound(soundData) {
-    
-  if (soundData === "Morning Clock") {
-    playMorningClock()
-  } else if (soundData ==="Police Siren") {
-    playPoliceSiren()
-  } else if (soundData === "Buglar Alert") {
-    playBuglarAlert()
-  } else if ("Slot Machine" === soundData) {
-    playSlotMachine()
-  }
-    }
-
-  const updateAlarmStatus = async (data, index) => {
-    try {
-      const value = {
-        coinPair: data.coinPair,
-        condition: data.condition,
-        price: data.price,
-        alarmSound: data.alarmSound,
-        isActive: !data.isActive
-      };
-
-      const stringifiedValue = JSON.stringify(value)
-      await AsyncStorage.setItem(
-        index,
-        stringifiedValue
-      )
-
-    } catch(e) {
-      error(e)
-    }
-  }
-
-// Not only does it get existing alarm data, but also it checks the condition of alarm as well.
-function getExistingAlarmData (data, pair, livePrice) {
-
-  for (const key of data) {
-    if (key.substring(0, 3) === pair) {
-        AsyncStorage.getItem(key).then((data) => {
-        let parsedData = JSON.parse(data)
-      // check for status of alarm.  
-      if (parsedData.isActive) {
-        // since the function is used for multiple function, I need to check which pair this function is used for.
-        // this statement would turn on the live price for corresponding pairs. It turns on because it checked one or more alarm is active.
-        switch (pair) {
-          case "BTC": 
-            setIsBackgroundLiveBitcoinPriceOn(true)
-            break;
-          case "LTC":
-            setIsBackgroundLiveLitecoinPriceOn(true)
-            break;
-          case "ETH":
-            setIsBackgroundLiveEthereumPriceOn(true)
-            break;  
-        }
-        
-        // condition checking
-        if (parsedData.condition === "Less Than" && Number(parsedData.price) > livePrice ) {
-          Linking.openURL("exp://192.168.43.185:19000/--/existingalarm")
-            playSound(parsedData.alarmSound)
-          
-          // Alarm alert that pop up when the alarm is triggered
-          const createTwoButtonAlert = () => {
-            Alert.alert(
-              `Let's Trade ${pair}!`,
-              `${pair} is ${parsedData.condition} ${parsedData.price}!`,
-              [
-                {
-                  text: "Dismiss",
-                  // turn setIsactive(false)
-                  onPress: () => updateAlarmStatus(parsedData, key),
-                  style: "cancel"
-                },
-                // turn setIsactive(false)
-                { text: "OK", onPress: () => updateAlarmStatus(parsedData, key) }
-              ],
-              { cancelable: false }
-            );
-          }
-          createTwoButtonAlert()
-        
-        } else if (parsedData.condition === "More Than" && Number(parsedData.price) < livePrice) {
-          playSound(parsedData.alarmSound)
-
-          const createTwoButtonAlert = () => {
-            Alert.alert(
-              `Let's Trade ${pair}!`,
-              `${pair} is ${parsedData.condition} ${parsedData.price}!`,
-              [
-                {
-                  text: "Cancel",
-                  onPress: () => updateAlarmStatus(parsedData, key),
-                  style: "cancel"
-                },
-                { text: "OK", onPress: () => updateAlarmStatus(parsedData, key) }
-              ],
-              { cancelable: false }
-            );
-          }
-          createTwoButtonAlert()
-        }
-      } }
-    )
-      
-    }
-  }
-}
-
-
-TaskManager.defineTask("setLiveBTCPrice", async () => {
-  console.log("setLiveBitcoinPrice still running")
-
-    let backgroundLivePrice 
-
-
-    fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd`
-      )
-      .then((response) => response.json()).catch((e) => console.log(e))
-      .then((data) =>  { backgroundLivePrice = getData(data, "bitcoin"); 
-        setBackgroundLiveBitcoinPrice(backgroundLivePrice);  
-        // the data below is a array with keys
-        getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "BTC", backgroundLivePrice))})
-  
-  return BackgroundFetch.Result.NewData;
-});
-
-TaskManager.defineTask("setLiveLTCPrice", async () => {
-  console.log("setLiveLitecoinPrice still running")
-
-
-    let backgroundLivePrice 
-
-    fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=usd`
-    )
-      .then((response) => response.json()).catch((e) => console.log(e))
-      .then((data) =>  { backgroundLivePrice = getData(data, "litecoin"); 
-        setBackgroundLiveLitecoinPrice(backgroundLivePrice);  
-        // the data below is a array with keys
-        getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "LTC", backgroundLivePrice))})
-  
-      return BackgroundFetch.Result.NewData;
-});
-
-TaskManager.defineTask("setLiveETHPrice", async () => {
-  console.log("setLiveEthPrice still running")
-  
-    let backgroundLivePrice 
-    
-    fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
-    )
-      .then((response) => response.json()).catch((e) => console.log(e))
-      .then((data) =>  { backgroundLivePrice = getData(data, "ethereum"); 
-        setBackgroundLiveEthereumPrice(backgroundLivePrice);  
-        // the data below is a array with keys
-        getExistingAlarmKeys().then((data) => getExistingAlarmData(data, "ETH", backgroundLivePrice))})
-  
-  return BackgroundFetch.Result.NewData;
-});
 
 const NewAlarm = ({ navigation }) => {
   const [coinPair, setCoinPair] = useState("BTC-USD");
@@ -280,69 +31,19 @@ const NewAlarm = ({ navigation }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
  
-
   // context
   const { editingAlarmData } = useContext(EditAlarmContext);
   const { editingAlarmIndex } = useContext(EditAlarmContext);
   const { setEditingAlarmIndex } = useContext(EditAlarmContext);
   const { setEditingAlarmData } = useContext(EditAlarmContext);
-  const { setLiveBitcoinPrice } = useContext(LivePriceContext);
-  const { liveBitcoinPrice } = useContext(LivePriceContext);
-
-  const { setLiveLitecoinPrice } = useContext(LivePriceContext);
-  const { liveLitecoinPrice } = useContext(LivePriceContext);
-
-  const { setLiveEthereumPrice } = useContext(LivePriceContext);
-  const { liveEthereumPrice } = useContext(LivePriceContext);
-
-  const { setIsLiveBitcoinPriceOn } = useContext(LivePriceContext);
-  const { setIsLiveEthereumPriceOn } = useContext(LivePriceContext);
-  const { setIsLiveLitecoinPriceOn } = useContext(LivePriceContext);
 
   const { isLiveBitcoinPriceOn } = useContext(LivePriceContext);
   const { isLiveEthereumPriceOn } = useContext(LivePriceContext);
   const { isLiveLitecoinPriceOn } = useContext(LivePriceContext);
 
-  setIsBackgroundLiveBitcoinPriceOn = setIsLiveBitcoinPriceOn
-  setIsBackgroundLiveEthereumPriceOn = setIsLiveEthereumPriceOn
-  setIsBackgroundLiveLitecoinPriceOn = setIsLiveLitecoinPriceOn
-
-  setBackgroundLiveBitcoinPrice = setLiveBitcoinPrice
-  setBackgroundLiveEthereumPrice = setLiveEthereumPrice
-  setBackgroundLiveLitecoinPrice = setLiveLitecoinPrice
-
-  backgroundLiveBitcoinPrice = liveBitcoinPrice
-  backgroundLiveEthereumPrice = liveEthereumPrice
-  backgroundLiveLitecoinPrice = liveLitecoinPrice
-
   isBackgroundLiveBitcoinPriceOn = isLiveBitcoinPriceOn
   isBackgroundLiveLitecoinPriceOn = isLiveEthereumPriceOn
   isBackgroundLiveEthereumPriceOn = isLiveLitecoinPriceOn
-
-
-  async function registerBTCFetchAsync() {
-    return await BackgroundFetch.registerTaskAsync("setLiveBTCPrice", {
-      minimumInterval: 1 * 15, // 15 minutes
-      stopOnTerminate: false, // android only,
-      startOnBoot: true, // android only
-    });
-  }
-
-  async function registerLTCFetchAsync() {
-    return await BackgroundFetch.registerTaskAsync("setLiveLTCPrice", {
-      minimumInterval: 1 * 15, // 15 minutes
-      stopOnTerminate: false, // android only,
-      startOnBoot: true, // android only
-    });
-  }
-
-  async function registerETHFetchAsync() {
-    return await BackgroundFetch.registerTaskAsync("setLiveETHPrice", {
-      minimumInterval: 1 * 15, // 15 minutes
-      stopOnTerminate: false, // android only,
-      startOnBoot: true, // android only
-    });
-  }
 
 
   function getCoinData (data) {
@@ -416,14 +117,6 @@ const NewAlarm = ({ navigation }) => {
       backgroundAlarmSound = alarmSound
       backgroundCondition = condition
       backgroundPrice = price
-      
-      if (coinPair === "BTC-USD") {
-        await registerBTCFetchAsync()
-      } else if (coinPair === "LTC-USD") {
-        await registerLTCFetchAsync()
-      } else if (coinPair === "ETH-USD") {
-        await registerETHFetchAsync()
-      }
 
       const jsonValue = JSON.stringify(value);
 
@@ -435,6 +128,16 @@ const NewAlarm = ({ navigation }) => {
       error(e);
     }
   };
+
+  function setupBackgroundFetch () {
+    if (coinPair === "BTC-USD") {
+      registerBTCFetchAsync()
+    } else if (coinPair === "LTC-USD") {
+      registerLTCFetchAsync()
+    } else if (coinPair === "ETH-USD") {
+      registerETHFetchAsync()
+    }
+  }
 
   return (
     <View>
@@ -523,7 +226,9 @@ const NewAlarm = ({ navigation }) => {
           color="#41444b"
           title="Save"
           onPress={() => {
+            setupBackgroundFetch();
             storeData();
+
           }}
         />
       </View>
