@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState, useEffect} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as Linking from 'expo-linking';
@@ -155,7 +155,7 @@ export default function App() {
       <EditAlarmContextProvider>
         <NavigationContainer linking={linking}>
           <Stack.Navigator>
-            <Stack.Screen name="Home" component={Home} linkingData={linkingData} />
+            <Stack.Screen options={{headerShown: false}} name="Home"  component={Home} linkingData={linkingData} />
             <Stack.Screen name="NewAlarm" component={NewAlarm} />
             <Stack.Screen name="ExistingAlarm" component={ExistingAlarm} />
             <Stack.Screen name="Alarm" component={Alarm} />

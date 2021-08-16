@@ -149,7 +149,7 @@ const NewAlarm = ({ navigation }) => {
               onPress={() => {
                 clearState();
                 setModalVisible(!modalVisible);
-                navigation.push("ExistingAlarm");
+                navigation.reset({routes: [{name: "ExistingAlarm"}]})
               }}
             >
               <Text>Close Modal</Text>

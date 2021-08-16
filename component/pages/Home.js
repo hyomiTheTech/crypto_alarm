@@ -1,24 +1,18 @@
-import React from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import React, {useEffect} from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
 const Home = ({ navigation }) => {
+
+  useEffect(() => {
+    setTimeout(()=> {
+      navigation.reset({routes: [{name: "ExistingAlarm"}]})
+    },1000)
+  },[])
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>CRYPTO ALARM</Text>
-      <View style={styles.buttonContainer}>
-        <Button
-          color="#41444b"
-          title="NEW ALARM"
-          onPress={() => navigation.navigate("NewAlarm")}
-        />
-        <Button
-          color="#41444b"
-          style={styles.button}
-          title="EXISTING ALARM"
-          onPress={() => navigation.navigate("ExistingAlarm")}
-        />
-      </View>
       <StatusBar style="auto" />
     </View>
   );

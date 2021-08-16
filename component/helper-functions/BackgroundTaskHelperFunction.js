@@ -125,7 +125,7 @@ async function playMorningClock() {
           
           // condition checking
           if (parsedData.condition === "Less Than" && Number(parsedData.price) > livePrice ) {
-            Linking.openURL("exp://192.168.43.185:19000/--/existingalarm")
+            Linking.openURL("exp://192.168.0.220:19000/--/existingalarm")
             
             // Alarm alert that pop up when the alarm is triggered
             const createTwoButtonAlert = () => {
@@ -148,7 +148,7 @@ async function playMorningClock() {
             setTimeout(() => {createTwoButtonAlert(); playSound(parsedData.alarmSound)}, 2000)
           
           } else if (parsedData.condition === "More Than" && Number(parsedData.price) < livePrice) {
-            Linking.openURL("exp://192.168.43.185:19000/--/existingalarm")
+            Linking.openURL("exp://192.168.0.220:19000/--/existingalarm")
             playSound(parsedData.alarmSound)
   
             const createTwoButtonAlert = () => {

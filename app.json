@@ -1,9 +1,10 @@
 {
   "expo": {
     "scheme": "myapp",
-    "name": "HelloWorld",
+    "name": "Crypto Price Alarm",
     "slug": "crypto_alarm",
     "version": "1.0.0",
+    "description": "An application that triggers alarm when a cryptocurrency hits a certain price level",
     "orientation": "portrait",
     "splash": {
       "resizeMode": "contain",

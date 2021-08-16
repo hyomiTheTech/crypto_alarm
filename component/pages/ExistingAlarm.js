@@ -72,6 +72,11 @@ const ExistingAlarm = ({ navigation }) => {
               setUpdate={setUpdate}
             />
           ))}
+          <Button
+          color="#41444b"
+          title="NEW ALARM"
+          onPress={() => navigation.reset({routes: [{name: "NewAlarm"}]})}
+        />
         </View>
       )}
     </View>

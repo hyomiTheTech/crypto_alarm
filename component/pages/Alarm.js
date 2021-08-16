@@ -112,7 +112,7 @@ const checkExistingAlarm = (data) => {
       onPress={() => {
         setEditingAlarmData(data);
         setEditingAlarmIndex(alarmIndex);
-        navigation.push("NewAlarm");
+        navigation.navigate("NewAlarm");
       }}
     >
       {data && (
