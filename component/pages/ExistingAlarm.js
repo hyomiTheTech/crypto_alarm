@@ -42,25 +42,7 @@ const ExistingAlarm = ({ navigation }) => {
 
   return (
     // testing 
-    <View>
-      <Text>
-        Live Bitcoin Price: {liveBitcoinPrice === null ? "Nothing" : liveBitcoinPrice}
-      </Text>
-      <Text>
-        Live LTC Price: {liveLitecoinPrice === null ? "Nothing" : liveLitecoinPrice}
-      </Text>
-      <Text>
-        Live Ethereum Price: {liveEthereumPrice === null ? "Nothing" : liveEthereumPrice}
-      </Text>
-      <Text>
-        BTC : {isLiveBitcoinPriceOn === true ? "True" : "False"}
-      </Text>
-      <Text>
-        LTC : {isLiveLitecoinPriceOn === true ? "True" : "False"}
-      </Text>
-      <Text>
-        ETH : {isLiveEthereumPriceOn === true ? "True" : "False"}
-      </Text>
+    <View style={styles.background}>
       {data && (
         <View>
           {data.map((alarmIndex) => (
@@ -82,5 +64,11 @@ const ExistingAlarm = ({ navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "#222831"
+  }
+})
 
 export default ExistingAlarm;

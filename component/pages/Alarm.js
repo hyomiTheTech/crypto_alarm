@@ -7,7 +7,13 @@ import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
 import * as BackgroundFetch from 'expo-background-fetch';
 
+/*
+darkest: #222831
+dark gray: #393E46
+granta: #00ADB5
+gray: #EEEEEE
 
+*/
 
 
 const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
@@ -138,9 +144,10 @@ const checkExistingAlarm = (data) => {
 const styles = StyleSheet.create({
   border: {
     borderWidth: 1,
+    backgroundColor: "#393E46",
   },
   text: {
-    color: "red",
+    color: "#EEEEEE",
   },
   button: {
     borderRadius: 20,
