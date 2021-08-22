@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import ReactDOM from 'react-dom'
-import { StyleSheet, Text, TouchableOpacity, Button } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, Button,View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
@@ -122,12 +122,13 @@ const checkExistingAlarm = (data) => {
       }}
     >
       {data && (
-        <>
-          <Text style={styles.text}>Coin Pair: {data.coinPair}</Text>
-          <Text style={styles.text}>Condition: {data.condition}</Text>
-          <Text style={styles.text}>Price: {data.price}</Text>
-          <Text style={styles.text}>Sound: {data.alarmSound}</Text>
-        </>
+        <View>
+          <Text style={styles.pair}>{data.coinPair}</Text>
+          <View style={styles.priceAndCondition}>
+            <Text style={styles.price}>{data.condition === "Less Than" ? "< " : "> "}</Text>
+            <Text style={styles.price}>${data.price}</Text>
+          </View>
+        </View>
       )}
       {data && data.isActive === true ? (<Button title="Active" color='#2196F3' onPress={updateAlarmStatus} /> ) : (<Button title="Not Active" color="#808080" onPress={updateAlarmStatus} />)}
         <Button
@@ -146,8 +147,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: "#393E46",
   },
-  text: {
+  priceAndCondition: {
+    flexDirection: "row",
+    color: "#EEEEEE"
+  },
+  pair: {
     color: "#EEEEEE",
+    fontSize:20},
+  price: {
+    color: "#EEEEEE",
+    fontSize: 30
   },
   button: {
     borderRadius: 20,

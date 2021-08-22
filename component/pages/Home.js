@@ -7,7 +7,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     setTimeout(()=> {
       navigation.reset({routes: [{name: "ExistingAlarm"}]})
-    },5000)
+    },2000)
   },[])
 
   return (

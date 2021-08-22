@@ -156,8 +156,8 @@ export default function App() {
         <NavigationContainer linking={linking}>
           <Stack.Navigator>
             <Stack.Screen options={{headerShown: false}} name="Home"  component={Home} linkingData={linkingData} />
-            <Stack.Screen name="NewAlarm" component={NewAlarm} />
-            <Stack.Screen name="ExistingAlarm" component={ExistingAlarm} />
+            <Stack.Screen options={{headerShown: false}} name="NewAlarm" component={NewAlarm} />
+            <Stack.Screen options={{headerShown: false}} name="ExistingAlarm" component={ExistingAlarm} />
             <Stack.Screen name="Alarm" component={Alarm} />
           </Stack.Navigator>
         </NavigationContainer>
