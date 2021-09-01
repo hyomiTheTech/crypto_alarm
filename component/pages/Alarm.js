@@ -7,6 +7,8 @@ import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
 import * as BackgroundFetch from 'expo-background-fetch';
 
+import styled,{keyframes} from "styled-components";
+
 /*
 darkest: #222831
 dark gray: #393E46
@@ -15,9 +17,52 @@ gray: #EEEEEE
 
 */
 
+// const animatedSlideDot = keyframes`
+// from {
+//   transform: scale(.25);
+//   opacity: 0;
+// }
+
+// to {
+//   transform: scale(1);
+//   opacity: 1;
+// }
+// `;
+
+const StyledSlideButton = styled.TouchableOpacity`
+  background-color: ${props => props.data.isActive === true ? `#00ADB5;`: `#EEEEEE` }
+  position: absolute;
+  right: 30px;
+  width: 65px;
+  height: 30px;
+  bottom: 50px;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 100px;
+  animation: 1s;
+`
+
+const StyledSlideButtonDot = styled.TouchableOpacity`
+  background-color: #393E46;
+  position: absolute;
+  width: 28px;
+  height: 27px;
+  right: ${props => props.data.isActive === true ? `65px;`: `31px;` }
+  bottom: 52px;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 100px;
+`
+
 
 const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
   const [data, setData] = useState({});
+  // this is a artificial updater that re-render the page whenever alarm status is updated.
+  const [updater, setUpdater] = useState(false)
 
   const { setEditingAlarmData } = useContext(EditAlarmContext);
   const { setEditingAlarmIndex } = useContext(EditAlarmContext);
@@ -38,7 +83,9 @@ const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
     }
   }
 
+  
   const updateAlarmStatus = async () => {
+    setUpdater(!updater)
     try {
       const value = {
         coinPair: data.coinPair,
@@ -66,11 +113,13 @@ const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
       getMyObject()
     }
 
+    console.log("Fsdf")
+
     return () => {
       isMounted = false;
     };
 
-  }, [data]);
+  }, [updater]);
 
     // helping functions
 const checkExistingAlarm = (data) => {
@@ -130,7 +179,11 @@ const checkExistingAlarm = (data) => {
           </View>
         </View>
       )}
-      {data && data.isActive === true ? (<Button title="Active" color='#2196F3' onPress={updateAlarmStatus} /> ) : (<Button title="Not Active" color="#808080" onPress={updateAlarmStatus} />)}
+      
+        <StyledSlideButton onPress={updateAlarmStatus} data={data} />
+        <StyledSlideButtonDot onPress={ updateAlarmStatus} data={data}/>
+        
+        <TouchableOpacity  />
         <Button
         title="Delete"
         onPress={() => {
