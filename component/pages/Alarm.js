@@ -5,9 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
-import * as BackgroundFetch from 'expo-background-fetch';
 
-import styled,{keyframes} from "styled-components";
+import styled from "styled-components";
 
 /*
 darkest: #222831
@@ -16,18 +15,6 @@ granta: #00ADB5
 gray: #EEEEEE
 
 */
-
-// const animatedSlideDot = keyframes`
-// from {
-//   transform: scale(.25);
-//   opacity: 0;
-// }
-
-// to {
-//   transform: scale(1);
-//   opacity: 1;
-// }
-// `;
 
 const StyledSlideButton = styled.TouchableOpacity`
   background-color: ${props => props.data.isActive === true ? `#00ADB5;`: `#EEEEEE` }
@@ -41,7 +28,6 @@ const StyledSlideButton = styled.TouchableOpacity`
   align-items: center;
   padding: 10px;
   border-radius: 100px;
-  animation: 1s;
 `
 
 const StyledSlideButtonDot = styled.TouchableOpacity`
@@ -66,10 +52,6 @@ const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
 
   const { setEditingAlarmData } = useContext(EditAlarmContext);
   const { setEditingAlarmIndex } = useContext(EditAlarmContext);
-
-  const { setIsLiveBitcoinPriceOn } = useContext(LivePriceContext);
-  const { setIsLiveEthereumPriceOn } = useContext(LivePriceContext);
-  const { setIsLiveLitecoinPriceOn } = useContext(LivePriceContext);
 
   const getMyObject = async () => {
     try {

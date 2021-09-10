@@ -1,23 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Button, StyleSheet, TouchableOpacity, View, ScrollView, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as BackgroundFetch from 'expo-background-fetch';
 
 import Alarm from "./Alarm";
 
-import { LivePriceContext } from "../context/LivePriceContextProvider";
 
 const ExistingAlarm = ({ navigation }) => {
   const [data, setData] = useState(null);
   const [update, setUpdate] = useState(true);
-
-  const { liveBitcoinPrice } = useContext(LivePriceContext);
-  const { liveLitecoinPrice } = useContext(LivePriceContext);
-  const { liveEthereumPrice } = useContext(LivePriceContext);
-
-   const { isLiveBitcoinPriceOn } = useContext(LivePriceContext);
-  const { isLiveLitecoinPriceOn } = useContext(LivePriceContext);
-  const { isLiveEthereumPriceOn } = useContext(LivePriceContext);
 
   const getData = async () => {
     let keys = [];
