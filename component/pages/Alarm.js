@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import ReactDOM from 'react-dom'
-import { StyleSheet, Text, TouchableOpacity, Button,View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, Button, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
 import { LivePriceContext } from "../context/LivePriceContextProvider";
+
+import TrashCan from '../svg/trash-can'
 
 import styled from "styled-components";
 
@@ -13,16 +15,30 @@ darkest: #222831
 dark gray: #393E46
 granta: #00ADB5
 gray: #EEEEEE
-
+red: #FF2E63
 */
 
 const StyledSlideButton = styled.TouchableOpacity`
   background-color: ${props => props.data.isActive === true ? `#00ADB5;`: `#EEEEEE` }
   position: absolute;
-  right: 30px;
+  right: 90px;
   width: 65px;
-  height: 30px;
-  bottom: 50px;
+  height: 31px;
+  bottom: 20px;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 100px;
+`
+
+const StyledDeleteButton = styled.TouchableOpacity`
+  background-color: #EEEEEE;
+  position: absolute;
+  right: 30px;
+  width: 45px;
+  height: 31px;
+  bottom: 20px;
   align-self: center;
   justify-content: center;
   align-items: center;
@@ -35,8 +51,8 @@ const StyledSlideButtonDot = styled.TouchableOpacity`
   position: absolute;
   width: 28px;
   height: 27px;
-  right: ${props => props.data.isActive === true ? `65px;`: `31px;` }
-  bottom: 52px;
+  right: ${props => props.data.isActive === true ? `126px;`: `91px;` }
+  bottom: 22px;
   align-self: center;
   justify-content: center;
   align-items: center;
@@ -95,41 +111,11 @@ const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
       getMyObject()
     }
 
-    console.log("Fsdf")
-
     return () => {
       isMounted = false;
     };
 
   }, [updater]);
-
-    // helping functions
-const checkExistingAlarm = (data) => {
-  // let isLiveBTCOn = false
-  // let isLiveLTCOn = false
-  // let isLiveETHOn = false
-
-  // for (const key of data) {
-    
-  //   if (key.substring(0, 3) === "BTC") {
-  //     isLiveBTCOn = true
-  //   } else if (key.substring(0, 3) === "ETH") {
-  //     isLiveETHOn = true
-  //   } else if (key.substring(0, 3) === "LTC") {
-  //     isLiveLTCOn = true
-  //   }
-  // }
-  // // unregister task that is not necessary
-  // if (!isLiveBTCOn) {
-  //   setIsLiveBitcoinPriceOn(false)
-  // } 
-  // if (!isLiveLTCOn) {
-  //   setIsLiveEthereumPriceOn(false)
-  // } 
-  // if (!isLiveETHOn) {
-  //   setIsLiveLitecoinPriceOn(false)
-  // }
-}
 
   const removeValue = async (key) => {
     try {
@@ -161,18 +147,20 @@ const checkExistingAlarm = (data) => {
           </View>
         </View>
       )}
+
+        <StyledDeleteButton onPress={() => {
+          removeValue(alarmIndex);
+          setUpdate(!update);
+        }} >
+          <TrashCan />
+          </StyledDeleteButton>
+        
       
         <StyledSlideButton onPress={updateAlarmStatus} data={data} />
         <StyledSlideButtonDot onPress={ updateAlarmStatus} data={data}/>
         
         <TouchableOpacity  />
-        <Button
-        title="Delete"
-        onPress={() => {
-          removeValue(alarmIndex);
-          setUpdate(!update);
-        }}
-      />
+
     </TouchableOpacity>
   );
 };
