@@ -21,7 +21,7 @@ red: #FF2E63
 const StyledSlideButton = styled.TouchableOpacity`
   background-color: ${props => props.data.isActive === true ? `#00ADB5;`: `#EEEEEE` }
   position: absolute;
-  right: 90px;
+  right: 80px;
   width: 65px;
   height: 31px;
   bottom: 20px;
@@ -33,10 +33,10 @@ const StyledSlideButton = styled.TouchableOpacity`
 `
 
 const StyledDeleteButton = styled.TouchableOpacity`
-  background-color: #EEEEEE;
+  background-color: #00ADB5;
   position: absolute;
-  right: 30px;
-  width: 45px;
+  right: 17px;
+  width: 50px;
   height: 31px;
   bottom: 20px;
   align-self: center;
@@ -51,7 +51,7 @@ const StyledSlideButtonDot = styled.TouchableOpacity`
   position: absolute;
   width: 28px;
   height: 27px;
-  right: ${props => props.data.isActive === true ? `126px;`: `91px;` }
+  right: ${props => props.data.isActive === true ? `116px;`: `81px;` }
   bottom: 22px;
   align-self: center;
   justify-content: center;
@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
   border: {
     borderWidth: 1,
     backgroundColor: "#393E46",
+    height: "200px",
   },
   priceAndCondition: {
     flexDirection: "row",
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
     fontSize:20},
   price: {
     color: "#EEEEEE",
-    fontSize: 30
+    fontSize: 25
   },
   button: {
     borderRadius: 20,
