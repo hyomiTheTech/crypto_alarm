@@ -178,7 +178,7 @@ async function playMorningClock() {
 export async function registerBTCFetchAsync() {
     console.log("BTC ONNONO")
     return await BackgroundFetch.registerTaskAsync("setLiveBTCPrice", {
-      minimumInterval: 1 * 15, // 15 minutes
+      minimumInterval: 1 * 3, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
     });
@@ -187,7 +187,7 @@ export async function registerBTCFetchAsync() {
 export async function registerLTCFetchAsync() {
     console.log("LTC ONNONO")
     return await BackgroundFetch.registerTaskAsync("setLiveLTCPrice", {
-      minimumInterval: 1 * 15, // 15 minutes
+      minimumInterval: 1 * 3, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
     });
@@ -197,7 +197,7 @@ export async function registerETHFetchAsync() {
 
     console.log("ETH ONNONO")
     return await BackgroundFetch.registerTaskAsync("setLiveETHPrice", {
-      minimumInterval: 1 * 15, // 15 minutes
+      minimumInterval: 1 * 3, // 15 minutes
       stopOnTerminate: false, // android only,
       startOnBoot: true, // android only
     });

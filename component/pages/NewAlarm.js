@@ -12,23 +12,18 @@ import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
-import { LivePriceContext } from "../context/LivePriceContextProvider";
-
-import { registerBTCFetchAsync, registerLTCFetchAsync, registerETHFetchAsync} from '../helper-functions/BackgroundTaskHelperFunction'
-
-let isBackgroundLiveBitcoinPriceOn = true
-let isBackgroundLiveLitecoinPriceOn = true
-let isBackgroundLiveEthereumPriceOn = true  
 
 
 const NewAlarm = ({ navigation }) => {
-  const [coinPair, setCoinPair] = useState("BTC-USD");
-  const [condition, setCondition] = useState("Less Than");
   const [currentPrice, setCurrentPrice] = useState(null);
-  const [price, setPrice] = useState(null);
-  const [alarmSound, setAlarmSound] = useState("Morning Clock");
-  const [alarmIndex, setAlarmIndex] = useState(`${coinPair}${Math.random()}`)
+  const [alarmInfo, setAlarmInfo] = useState({
+    coinPair: "BTC-USD",
+    condition: "Less Than",
+    price: null,
+    alarmSound: "Morning Clock",
+  })
 
+  const [alarmIndex, setAlarmIndex] = useState(`${alarmInfo.coinPair}${Math.random()}`)
   const [modalVisible, setModalVisible] = useState(false);
  
   // context
@@ -37,40 +32,34 @@ const NewAlarm = ({ navigation }) => {
   const { setEditingAlarmIndex } = useContext(EditAlarmContext);
   const { setEditingAlarmData } = useContext(EditAlarmContext);
 
-  const { isLiveBitcoinPriceOn } = useContext(LivePriceContext);
-  const { isLiveEthereumPriceOn } = useContext(LivePriceContext);
-  const { isLiveLitecoinPriceOn } = useContext(LivePriceContext);
-
-  isBackgroundLiveBitcoinPriceOn = isLiveBitcoinPriceOn
-  isBackgroundLiveLitecoinPriceOn = isLiveEthereumPriceOn
-  isBackgroundLiveEthereumPriceOn = isLiveLitecoinPriceOn
-
-
   function getCoinData (data) {
     let coinData
-    if (coinPair === "BTC-USD") {
+    if (alarmInfo.coinPair === "BTC-USD") {
       coinData = data.bitcoin.usd
-    } else if (coinPair === "LTC-USD") {
+    } else if (alarmInfo.coinPair === "LTC-USD") {
       coinData = data.litecoin.usd
-    } else if (coinPair === "ETH-USD") {
+    } else if (alarmInfo.coinPair === "ETH-USD") {
       coinData = data.ethereum.usd
     }
-  
     return coinData
   }
 
   function clearState() {
-    setAlarmSound("Morning Clock");
-    setCoinPair("BTC-USD");
-    setCondition("Less Than");
-    setPrice(null);
+    setAlarmInfo({
+      coinPair: "BTC-USD",
+      condition: "Less Than",
+      price: null,
+      alarmSound: "Morning Clock",
+    })
   }
 
   function retrieveEditingData() {
-    setCoinPair(editingAlarmData.coinPair);
-    setCondition(editingAlarmData.condition);
-    setAlarmSound(editingAlarmData.alarmSound);
-    setPrice(editingAlarmData.price);
+    setAlarmInfo({
+      coinPair: editingAlarmData.coinPair,
+      condition: editingAlarmData.condition,
+      price: editingAlarmData.price,
+      alarmSound: editingAlarmData.alarmSound,
+    })
   }
 
   useEffect(() => {
@@ -78,14 +67,14 @@ const NewAlarm = ({ navigation }) => {
 
     let selectedCoin
 
-    setAlarmIndex(`${coinPair}${Math.random()}`)
+    setAlarmIndex(`${alarmInfo.coinPair}${Math.random()}`)
 
-    if(coinPair === "BTC-USD") {
+    if (alarmInfo.coinPair === "BTC-USD") {
       selectedCoin = "bitcoin"
-    } else if (coinPair === "ETH-USD") {
-      selectedCoin = "litecoin"
-    } else if (coinPair === "LTC-USD") {
+    } else if (alarmInfo.coinPair === "ETH-USD") {
       selectedCoin = "ethereum"
+    } else if (alarmInfo.coinPair === "LTC-USD") {
+      selectedCoin = "litecoin"
     }
 
     fetch(
@@ -102,21 +91,14 @@ const NewAlarm = ({ navigation }) => {
         .then((data) => setCurrentPrice(getCoinData(data)));
     }, 10000);
     return () => {clearInterval(interval); setEditingAlarmData(null); setEditingAlarmIndex(null);}
-  }, [coinPair]);
+  }, [alarmInfo.coinPair]);
 
   const storeData = async () => {
     try {
       const value = {
-        coinPair: coinPair,
-        condition: condition,
-        price: price,
-        alarmSound: alarmSound,
+        ...alarmInfo,
         isActive: true
       };
-
-      backgroundAlarmSound = alarmSound
-      backgroundCondition = condition
-      backgroundPrice = price
 
       const jsonValue = JSON.stringify(value);
 
@@ -128,16 +110,6 @@ const NewAlarm = ({ navigation }) => {
       error(e);
     }
   };
-
-  function setupBackgroundFetch () {
-    if (coinPair === "BTC-USD") {
-      registerBTCFetchAsync()
-    } else if (coinPair === "LTC-USD") {
-      registerLTCFetchAsync()
-    } else if (coinPair === "ETH-USD") {
-      registerETHFetchAsync()
-    }
-  }
 
   return (
     <View>
@@ -165,7 +137,7 @@ const NewAlarm = ({ navigation }) => {
           // style={styles.inputAndroid}
           useNativeAndroidPickerStyle={false}
           fixAndroidTouchableBug={true}
-          onValueChange={(value) => setCoinPair(value)}
+          onValueChange={(value) => setAlarmInfo({...alarmInfo, coinPair: value})}
           name="coinPair"
           items={[
             { label: "BTC-USD", value: "BTC-USD" },
@@ -173,7 +145,7 @@ const NewAlarm = ({ navigation }) => {
             { label: "LTC-USD", value: "LTC-USD" },
           ]}
           placeholder={{}}
-          value={coinPair}
+          value={alarmInfo.coinPair}
         />
       </View>
       <View>
@@ -184,23 +156,23 @@ const NewAlarm = ({ navigation }) => {
           style={styles.inputAndroid}
           useNativeAndroidPickerStyle={false}
           fixAndroidTouchableBug={true}
-          onValueChange={(value) => setCondition(value)}
+          onValueChange={(value) => setAlarmInfo({...alarmInfo, condition: value})}
           items={[
             { label: "Less Than", value: "Less Than" },
             { label: "More Than", value: "More Than" },
           ]}
           placeholder={{}}
-          value={condition}
+          value={alarmInfo.condition}
         />
       </View>
       <View>
         <Text>Price</Text>
 
         <TextInput
-          onChangeText={setPrice}
+          onChangeText={(input) => setAlarmInfo({...alarmInfo, price: input})}
           style={styles.priceInput}
           placeholder={"Price"}
-          value={price}
+          value={alarmInfo.price}
         />
       </View>
       <View>
@@ -210,7 +182,7 @@ const NewAlarm = ({ navigation }) => {
           style={styles.inputAndroid}
           useNativeAndroidPickerStyle={false}
           fixAndroidTouchableBug={true}
-          onValueChange={(value) => setAlarmSound(value)}
+          onValueChange={(value) => setAlarmInfo({...alarmInfo, alarmSound: value})}
           items={[
             { label: "Morning Clock", value: "Morning Clock" },
             { label: "Slot Machine", value: "Slot Machine" },
@@ -218,7 +190,7 @@ const NewAlarm = ({ navigation }) => {
             { label: "Buglar Alert", value: "Buglar Alert" },
           ]}
           placeholder={{}}
-          value={alarmSound}
+          value={alarmInfo.alarmSound}
         />
       </View>
       <View>
@@ -226,9 +198,7 @@ const NewAlarm = ({ navigation }) => {
           color="#41444b"
           title="Save"
           onPress={() => {
-            setupBackgroundFetch();
             storeData();
-
           }}
         />
       </View>

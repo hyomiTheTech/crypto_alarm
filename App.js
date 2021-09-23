@@ -96,31 +96,34 @@ export default function App() {
 
   function setupBackgroundFetch () {
 
-    getExistingAlarmKeys().then((data) => {
-      let isBTCAlarmOn = false
-      let isLTCAlarmOn = false
-      let isETHAlarmOn = false
+    // getExistingAlarmKeys().then((data) => {
+    //   let isBTCAlarmOn = false
+    //   let isLTCAlarmOn = false
+    //   let isETHAlarmOn = false
 
-      for (const key of data) {
-        if (key.substring(0, 3) === "BTC") {
-          isBTCAlarmOn = true
-        } else if (key.substring(0, 3) === "LTC") {
-          isLTCAlarmOn = true
-        } else if (key.substring(0, 3) === "ETH") {
-          isETHAlarmOn = true
-        }
-      }
+    //   for (const key of data) {
+    //     if (key.substring(0, 3) === "BTC") {
+    //       isBTCAlarmOn = true
+    //     } else if (key.substring(0, 3) === "LTC") {
+    //       isLTCAlarmOn = true
+    //     } else if (key.substring(0, 3) === "ETH") {
+    //       isETHAlarmOn = true
+    //     }
+    //   }
 
-      if (isLTCAlarmOn) {
-        registerLTCFetchAsync()
-      }
-      if (isBTCAlarmOn) {
-        registerBTCFetchAsync()
-      } 
-      if (isETHAlarmOn) {
-        registerETHFetchAsync()
-      }
-    })
+    //   if (isLTCAlarmOn) {
+    //     registerLTCFetchAsync()
+    //   }
+    //   if (isBTCAlarmOn) {
+    //     registerBTCFetchAsync()
+    //   } 
+    //   if (isETHAlarmOn) {
+    //     registerETHFetchAsync()
+    //   }
+    // })
+    registerLTCFetchAsync()
+    registerBTCFetchAsync()
+    registerETHFetchAsync()
   }
 
 

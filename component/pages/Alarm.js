@@ -121,7 +121,7 @@ const Alarm = ({ navigation, alarmIndex, update, setUpdate }) => {
     try {
       await AsyncStorage.removeItem(key);
       // check existing alarm keys to update background tasks status
-      await AsyncStorage.getAllKeys().then((data) => {checkExistingAlarm(data)})
+      // await AsyncStorage.getAllKeys().then((data) => {checkExistingAlarm(data)})
     } catch (e) {
       // remove error
       console.log(e);
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   border: {
     borderWidth: 1,
     backgroundColor: "#393E46",
-    height: "200px",
+    height: 80
   },
   priceAndCondition: {
     flexDirection: "row",
