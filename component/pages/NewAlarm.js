@@ -10,8 +10,38 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import styled from "styled-components";
 
 import { EditAlarmContext } from "../context/EditAlarmContextProvider";
+
+const pickerStyle = {
+	inputIOS: {
+		color: 'white',
+		paddingTop: 13,
+		paddingHorizontal: 10,
+		paddingBottom: 12,
+	},
+	inputAndroid: {
+		color: 'white',
+	},
+	placeholderColor: 'white',
+	underline: { borderTopWidth: 0 },
+	icon: {
+		position: 'absolute',
+		backgroundColor: 'transparent',
+		borderTopWidth: 5,
+		borderTopColor: '#00000099',
+		borderRightWidth: 5,
+		borderRightColor: 'transparent',
+		borderLeftWidth: 5,
+		borderLeftColor: 'transparent',
+		width: 0,
+		height: 0,
+		top: 20,
+		right: 15,
+	},
+};
+
 
 
 const NewAlarm = ({ navigation }) => {
@@ -112,7 +142,7 @@ const NewAlarm = ({ navigation }) => {
   };
 
   return (
-    <View>
+    <View style={styles.background}>
       <Modal transparent={true} visible={modalVisible}>
         <View style={{ backgroundColor: "black", flex: 1 }}>
           <View style={{ margin: 50, padding: 40, backgroundColor: "white" }}>
@@ -124,17 +154,16 @@ const NewAlarm = ({ navigation }) => {
                 navigation.reset({routes: [{name: "ExistingAlarm"}]})
               }}
             >
-              <Text>Close Modal</Text>
+              <Text style={styles.header}>Close Modal</Text>
             </Pressable>
           </View>
         </View>
       </Modal>
-      <View>{currentPrice && <Text>Current Price: ${currentPrice}</Text>}</View>
+      <View>{currentPrice && <Text style={styles.header}>Current Price: ${currentPrice}</Text>}</View>
       <View>
-        <Text>Coin Pair</Text>
+        <Text style={styles.header}>Coin Pair</Text>
 
         <RNPickerSelect
-          // style={styles.inputAndroid}
           useNativeAndroidPickerStyle={false}
           fixAndroidTouchableBug={true}
           onValueChange={(value) => setAlarmInfo({...alarmInfo, coinPair: value})}
@@ -149,11 +178,12 @@ const NewAlarm = ({ navigation }) => {
         />
       </View>
       <View>
-        <Text>Condition</Text>
+        <Text style={styles.header}>Condition</Text>
 
         <RNPickerSelect
           name="condition"
-          style={styles.inputAndroid}
+          useNativeAndroidPickerStyle={false}
+          style={pickerStyle}
           useNativeAndroidPickerStyle={false}
           fixAndroidTouchableBug={true}
           onValueChange={(value) => setAlarmInfo({...alarmInfo, condition: value})}
@@ -166,8 +196,7 @@ const NewAlarm = ({ navigation }) => {
         />
       </View>
       <View>
-        <Text>Price</Text>
-
+        <Text style={styles.header}>Price</Text>
         <TextInput
           onChangeText={(input) => setAlarmInfo({...alarmInfo, price: input})}
           style={styles.priceInput}
@@ -176,10 +205,10 @@ const NewAlarm = ({ navigation }) => {
         />
       </View>
       <View>
-        <Text>Alarm Sound</Text>
-
+        <Text style={styles.header}>Alarm Sound</Text>
         <RNPickerSelect
-          style={styles.inputAndroid}
+          useNativeAndroidPickerStyle={false}
+          style={pickerStyle}
           useNativeAndroidPickerStyle={false}
           fixAndroidTouchableBug={true}
           onValueChange={(value) => setAlarmInfo({...alarmInfo, alarmSound: value})}
@@ -195,7 +224,7 @@ const NewAlarm = ({ navigation }) => {
       </View>
       <View>
         <Button
-          color="#41444b"
+          color="#00ADB5"
           title="Save"
           onPress={() => {
             storeData();
@@ -207,6 +236,12 @@ const NewAlarm = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "#222831",
+    height: "100%",
+    alignContent: "space-around",
+    justifyContent: "space-around",
+  },
   selectSection: {
     flexDirection: "column",
     justifyContent: "center",
@@ -214,7 +249,7 @@ const styles = StyleSheet.create({
   },
   priceInput: {
     backgroundColor: "white",
-    height: 25,
+    height: 45,
     margin: 6,
     borderWidth: 1,
   },
@@ -222,22 +257,13 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "30%",
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-    backgroundColor: "black",
-  },
   inputAndroid: {
-    fontSize: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 0.5,
-    borderColor: "purple",
-    borderRadius: 8,
-    color: "yellow",
-    paddingRight: 30, // to ensure the text is never behind the icon
+    color: "#EEEEEE"
   },
+  header: {
+    fontSize:20,
+    color: "#EEEEEE"
+  }
 });
 
 export default NewAlarm;

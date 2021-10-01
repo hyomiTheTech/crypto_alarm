@@ -101,12 +101,12 @@ async function playMorningClock() {
     }
   
   // Not only does it get existing alarm data, but also it checks the condition of alarm as well.
-  export function getExistingAlarmData (data, pair, livePrice) {
+  export async function getExistingAlarmData (data, pair, livePrice) {
   
     for (const key of data) {
       if (key.substring(0, 3) === pair) {
-          AsyncStorage.getItem(key).then((data) => {
-          let parsedData = JSON.parse(data)
+        await AsyncStorage.getItem(key).then((data) => {
+        let parsedData = JSON.parse(data)
         // check for status of alarm.  
         if (parsedData.isActive) {
           // since the function is used for multiple function, I need to check which pair this function is used for.

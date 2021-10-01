@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import ReactDOM from 'react-dom'
 import { StyleSheet, Text, TouchableOpacity, Button, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";

@@ -31,7 +31,7 @@ TaskManager.defineTask("setLiveBTCPrice", async () => {
 
     let backgroundLivePrice 
 
-    fetch(
+    await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd`
       )
       .then((response) => response.json()).catch((e) => console.log(e))
@@ -48,7 +48,7 @@ TaskManager.defineTask("setLiveLTCPrice", async () => {
 
     let backgroundLivePrice 
 
-    fetch(
+    await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=usd`
     )
       .then((response) => response.json()).catch((e) => console.log(e))
@@ -65,7 +65,7 @@ TaskManager.defineTask("setLiveETHPrice", async () => {
   
     let backgroundLivePrice 
     
-    fetch(
+    await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
     )
       .then((response) => response.json()).catch((e) => console.log(e))
@@ -94,7 +94,7 @@ export default function App() {
     }
   }
 
-  function setupBackgroundFetch () {
+  async function setupBackgroundFetch () {
 
     // getExistingAlarmKeys().then((data) => {
     //   let isBTCAlarmOn = false
@@ -121,9 +121,9 @@ export default function App() {
     //     registerETHFetchAsync()
     //   }
     // })
-    registerLTCFetchAsync()
-    registerBTCFetchAsync()
-    registerETHFetchAsync()
+    await registerLTCFetchAsync()
+    await registerBTCFetchAsync()
+    await registerETHFetchAsync()
   }
 
 
@@ -133,7 +133,7 @@ export default function App() {
   }
 
   useEffect(() => {
-
+    setupBackgroundFetch()
     
     async function getInitialURL() {
       const initialURL = await Linking.getInitialURL();
@@ -142,7 +142,6 @@ export default function App() {
         setLinkingData(Linking.parse(initialURL))
       }
     }
-    setupBackgroundFetch()
 
     Linking.addEventListener("url", handleDeepLink)
 
